@@ -9,6 +9,9 @@ TASTYPIE_FULL_DEBUG = DEBUG
 ADMINS = (('root', 'root@localhost'),)
 MANAGERS = ADMINS
 
+EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+EMAIL_FILE_PATH = '/tmp/tracktrains-messages'
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,

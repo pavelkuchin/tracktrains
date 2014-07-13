@@ -8,6 +8,7 @@ from django.contrib.auth.models import (
     PermissionsMixin
 )
 
+log = logging.getLogger(__name__)
 # >>> MANAGERS <<< #
 
 class TrackTrainsUserManager(BaseUserManager):
@@ -24,10 +25,12 @@ class TrackTrainsUserManager(BaseUserManager):
 
         if not email:
             msg = "Email is mandatory param for user creation"
+            log.warning(msg)
             raise ValueError(msg)
 
         if not inviter:
             msg = "Inviter is mandatory param for user creation"
+            log.warning(msg)
             raise ValueError(msg)
 
         invites4newuser = 0
@@ -39,6 +42,7 @@ class TrackTrainsUserManager(BaseUserManager):
             invites4newuser = 3
         else:
             msg = "Inviter has no invitations"
+            log.warning(msg)
             raise ValueError(msg)
 
         user = self.model(
@@ -49,18 +53,20 @@ class TrackTrainsUserManager(BaseUserManager):
 
         user.set_password(password)
         user.save(using=self._db)
+        log.info("User %s has been created." % user.email)
         return user
 
     def create_superuser(self, email, password):
         """
         Creates a superuser with given email and password
-        the invites_counter is 0 
+        the invites_counter is 0
         because superuser has unlimited number of invites
         """
         # TODO this method almost the same as create_user,
         #       consider the way to use create_user inside
         if not email:
             msg = "Email is mandatory param for user creation"
+            log.warning(msg)
             raise ValueError(msg)
 
         user = self.model(
@@ -75,7 +81,8 @@ class TrackTrainsUserManager(BaseUserManager):
         user.is_staff = True
 
         user.save(using=self._db)
-        return user 
+        log.warning("SuperUser %s has been created.")
+        return user
 
 # >>> MODELS <<< #
 class TrackTrainsUser(AbstractBaseUser, PermissionsMixin):

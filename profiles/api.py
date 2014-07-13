@@ -1,4 +1,8 @@
+import logging
+
 from django.conf.urls import url
+from django.core import signing
+from django.core.mail import send_mail
 from tastypie.resources import ModelResource
 from tastypie.constants import ALL
 from tastypie.utils import trailing_slash
@@ -7,6 +11,7 @@ from tastypie.authentication import BasicAuthentication
 
 from .models import TrackTrainsUser
 
+log = logging.getLogger(__name__)
 
 class TrackTrainsUserResource(ModelResource):
     class Meta:
@@ -15,26 +20,45 @@ class TrackTrainsUserResource(ModelResource):
         authentication = BasicAuthentication()
         authorization = ReadOnlyAuthorization()
         filtering = {'email': ALL}
+        allowed_methods = ['get']
         fields = ['email', 'inviter', 'invites_counter', 'is_active', 'is_staff']
 
     def prepend_urls(self):
         return [
-            url(r"(?P<resource_name>%s)/signup%s$" % (self._meta.resource_name, trailing_slash()), 
-                self.wrap_view("signup"), 
+            url(r"(?P<resource_name>%s)/signup/(?P<hash>.+)%s$" % (self._meta.resource_name, trailing_slash()),
+                self.wrap_view("signup"),
                 name="api_signup"),
-            url(r"(?P<resource_name>%s)/invite%s$" % (self._meta.resource_name, trailing_slash()),
+            url(r"(?P<resource_name>%s)/invite/(?P<email>.+)%s$" % (self._meta.resource_name, trailing_slash()),
                 self.wrap_view("invite"),
                 name="api_invite")
         ]
 
     def signup(self, request, **kwargs):
         self.method_check(request, allowed=['post'])
-        self.is_authenticated(request)
         self.throttle_check(request)
 
-        # TODO sugnup implementation
+        try:
+            invitation = signing.loads(kwargs['hash'], salt='profile')
 
-        result = {'result': 'stub for signup'}
+            password = request.POST.get('password')
+
+            if len(password):
+                TrackTrainsUser.objects.create_user(invitation['to'], invitation['from'], password)
+
+                log.debug(invitation)
+                log.info('Invitation has been accepted by %s' % invitation.to)
+                result = {'success': True}
+            else:
+                # TODO complex password check out 
+                msg = 'Empty string is not a valid password.'
+                log.warning(msg)
+                result = {'success': False, 'msg': msg}
+        except:
+            # TODO advanced exceptions processing. 
+            #       Here can be various exceptions 
+            msg = 'Bad invitation'
+            log.warning(msg)
+            result = {'success': False, 'msg': msg}
 
         self.log_throttled_access(request)
         return self.create_response(request, result)
@@ -44,9 +68,21 @@ class TrackTrainsUserResource(ModelResource):
         self.is_authenticated(request)
         self.throttle_check(request)
 
-        # TODO invite implementation
 
-        result = {'result': 'stub for invite'}
+        if request.user.invites_counter > 0:
+            invitation = {
+                'from': request.user.email,
+                'to': kwargs['email']
+            }
+            log.debug(invitation)
+
+            signed_invitation = signing.dumps(invitation, salt='profile')
+
+            # TODO email with templates (txt and html)
+
+            result = {'success': True, 'hash': signed_invitation}
+        else:
+            result = {'success': False, 'message': "User can't send more invitations. Limit has came."}
 
         self.log_throttled_access(request)
         return self.create_response(request, result)
