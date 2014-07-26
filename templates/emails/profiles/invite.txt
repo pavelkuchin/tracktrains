@@ -1,3 +1,4 @@
 You has been invited to TrackTrains portal
-In order to accept the invitation please follow this link: {% url api_signup %}/{{ signed_invitation  }}/
+In order to accept the invitation please follow this link: {{ link_to_signup }}
+
 

@@ -56,6 +56,7 @@ THIRD_PARTY_APPS = (
 
 LOCAL_APPS = (
     'profiles',
+    'utils'
 )
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -110,3 +111,6 @@ STATIC_URL = '/static/'
 
 # Templates dir
 TEMPLATE_DIRS = (root('..', 'templates'),)
+
+# Front-End links
+SIGNUP_PAGE = "signup"

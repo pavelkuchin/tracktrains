@@ -27,18 +27,36 @@ class TrackTrainsUserManager(BaseUserManager):
             msg = "Email is mandatory param for user creation"
             log.warning(msg)
             raise ValueError(msg)
+        else:
+            nemail = TrackTrainsUserManager.normalize_email(email)
 
         if not inviter:
             msg = "Inviter is mandatory param for user creation"
             log.warning(msg)
             raise ValueError(msg)
 
+        try:
+            user_inviter = TrackTrainsUser.objects.get(email=inviter)
+        except:
+            msg = "Can't find an inviter user in DB"
+            log.warning(msg)
+            raise ValueError(msg)
+
+        try:
+            TrackTrainsUser.objects.get(email=nemail)
+        except:
+            pass
+        else:
+            msg = "User already exists."
+            log.warning(msg)
+            raise ValueError(msg)
+
         invites4newuser = 0
-        if inviter.invites_counter > 0:
-            inviter.invites_counter -= 1
-            invites4newuser = inviter.invites_counter
-            inviter.save()
-        elif inviter.is_superuser:
+        if user_inviter.invites_counter > 0:
+            user_inviter.invites_counter -= 1
+            invites4newuser = user_inviter.invites_counter
+            user_inviter.save()
+        elif user_inviter.is_superuser:
             invites4newuser = 3
         else:
             msg = "Inviter has no invitations"
@@ -46,8 +64,8 @@ class TrackTrainsUserManager(BaseUserManager):
             raise ValueError(msg)
 
         user = self.model(
-            email=TrackTrainsUserManager.normalize_email(email),
-            inviter=inviter,
+            email=TrackTrainsUserManager.normalize_email(nemail),
+            inviter=user_inviter,
             invites_counter=invites4newuser
         )
 

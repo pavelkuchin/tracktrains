@@ -10,6 +10,7 @@ from tastypie.authorization import ReadOnlyAuthorization
 from tastypie.authentication import BasicAuthentication
 
 from .models import TrackTrainsUser
+from utils import email
 
 log = logging.getLogger(__name__)
 
@@ -37,8 +38,10 @@ class TrackTrainsUserResource(ModelResource):
         self.method_check(request, allowed=['post'])
         self.throttle_check(request)
 
+        inv_hash = kwargs['hash']
+
         try:
-            invitation = signing.loads(kwargs['hash'], salt='profile')
+            invitation = signing.loads(inv_hash, salt='profile')
 
             password = request.POST.get('password')
 
@@ -46,7 +49,7 @@ class TrackTrainsUserResource(ModelResource):
                 TrackTrainsUser.objects.create_user(invitation['to'], invitation['from'], password)
 
                 log.debug(invitation)
-                log.info('Invitation has been accepted by %s' % invitation.to)
+                log.info('Invitation has been accepted by %s' % invitation['to'])
                 result = {'success': True}
             else:
                 # TODO complex password check out 
@@ -57,7 +60,7 @@ class TrackTrainsUserResource(ModelResource):
             # TODO advanced exceptions processing. 
             #       Here can be various exceptions 
             msg = 'Bad invitation'
-            log.warning(msg)
+            log.exception(msg)
             result = {'success': False, 'msg': msg}
 
         self.log_throttled_access(request)
@@ -78,9 +81,9 @@ class TrackTrainsUserResource(ModelResource):
 
             signed_invitation = signing.dumps(invitation, salt='profile')
 
-            # TODO email with templates (txt and html)
+            email.send_invitation_email(request, invitation['from'], invitation['to'], signed_invitation)
 
-            result = {'success': True, 'hash': signed_invitation}
+            result = {'success': True}
         else:
             result = {'success': False, 'message': "User can't send more invitations. Limit has came."}
 

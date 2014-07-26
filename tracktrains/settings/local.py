@@ -1,6 +1,7 @@
 from .base import *
 
 # Settings which are specific for the local environment.
+HOST = "localhost:8080"
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -25,10 +26,14 @@ LOGGING = {
         },
     },
     'loggers': {
-        'django': {
-            'handlers': ['file'],
+        '': {
             'level': 'DEBUG',
-            'propagate': True,
+            'handlers': ['file']
+        },
+        'django': {
+            'level': 'DEBUG',
+            'handlers': ['file'],
+            'propagate': False,
         }
     }
 }
