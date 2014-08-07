@@ -16,13 +16,19 @@ EMAIL_FILE_PATH = '/tmp/tracktrains-messages'
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'formatters': {
+      'basic': {
+        'format': '%(levelname)s %(asctime)s %(message)s'
+      }
+    },
     'handlers': {
         'file': {
             'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
             'filename': '/tmp/tracktrains.log',
             'maxBytes': 1024*1024*5, # 5 MB
-            'backupCount': 5
+            'backupCount': 5,
+            'formatter': 'basic'
         },
     },
     'loggers': {
