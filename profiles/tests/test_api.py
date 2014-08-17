@@ -1,3 +1,9 @@
+import re
+
+from django.core import mail
+from django.contrib.auth import authenticate
+from django.test.utils import override_settings
+
 from tastypie.test import ResourceTestCase
 
 from profiles.models import TrackTrainsUser
@@ -15,6 +21,8 @@ class TrackTrainsUserResource(ResourceTestCase):
 
         self.list_url = u"/api/v1/user/"
         self.details_url = u"/api/v1/user/%d/"
+        self.invite_url = u"/api/v1/user/invite/%s/"
+        self.signup_url = u"/api/v1/user/signup/%s/"
 
         self.superuser = TrackTrainsUser.objects.create_superuser(
             self.super_user_email,
@@ -134,7 +142,10 @@ class TrackTrainsUserResource(ResourceTestCase):
 
     def test_delete_detail_unauthenticated(self):
         self.assertHttpMethodNotAllowed(
-            self.api_client.delete(self.details_url % (self.user.pk), format='json')
+            self.api_client.delete(
+                self.details_url % (self.user.pk),
+                format='json'
+            )
         )
 
     def test_delete_detail(self):
@@ -145,3 +156,51 @@ class TrackTrainsUserResource(ResourceTestCase):
                 authentication=self.get_credentials()
             )
         )
+
+    def test_invite_signup(self):
+        email = "unittest@test.ts"
+        password = "testpassword"
+        pattern = r"http://localhost:8080/signup/(.+)/"
+
+        # send invitation
+        resp = self.deserialize(
+            self.api_client.post(
+                self.invite_url % (email),
+                authentication=self.get_credentials())
+        )
+
+        self.assertIsNotNone(resp)
+        self.assertEqual(resp["success"], True, resp["message"])
+        # checking email and finding token in email
+        # The outbox attribute is created when the first message is sent.
+        self.assertIsNotNone(mail.outbox)
+        self.assertEqual(len(mail.outbox), 1)
+
+        msg = mail.outbox[0]
+
+        sres = re.search(pattern, msg.body)
+
+        self.assertIsNotNone(sres)
+
+        token = sres.group(1)
+
+        self.assertIsNotNone(token)
+        self.assertGreater(len(token), 0)
+
+        # registartion with token
+        resp = self.deserialize(
+            self.api_client.post(
+                self.signup_url % (token),
+                format='json',
+                data={'password': password}
+            )
+        )
+
+        self.assertIsNotNone(resp)
+        self.assertEqual(resp["success"], True, resp["message"])
+
+        user = authenticate(email=email, password=password)
+
+        self.assertIsNotNone(user)
+        self.assertEqual(user.email, email)
+        self.assertEqual(user.is_active, True)

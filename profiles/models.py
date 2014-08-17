@@ -98,7 +98,7 @@ class TrackTrainsUserManager(BaseUserManager):
         user.is_staff = True
 
         user.save(using=self._db)
-        log.warning("SuperUser %s has been created.")
+        log.warning("SuperUser %s has been created." % (email))
         return user
 
 # >>> MODELS <<< #

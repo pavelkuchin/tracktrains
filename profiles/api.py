@@ -1,4 +1,5 @@
 import logging
+import json
 
 from django.conf.urls import url
 from django.core import signing
@@ -29,10 +30,12 @@ class TrackTrainsUserResource(ModelResource):
 
     def prepend_urls(self):
         return [
-            url(r"(?P<resource_name>%s)/signup/(?P<hash>.+)%s$" % (self._meta.resource_name, trailing_slash()),
+            url(r"(?P<resource_name>%s)/signup/(?P<hash>.+)%s$"
+                    % (self._meta.resource_name, trailing_slash()),
                 self.wrap_view("signup"),
                 name="api_signup"),
-            url(r"(?P<resource_name>%s)/invite/(?P<email>.+)%s$" % (self._meta.resource_name, trailing_slash()),
+            url(r"(?P<resource_name>%s)/invite/(?P<email>.+)%s$"
+                    % (self._meta.resource_name, trailing_slash()),
                 self.wrap_view("invite"),
                 name="api_invite")
         ]
@@ -46,25 +49,31 @@ class TrackTrainsUserResource(ModelResource):
         try:
             invitation = signing.loads(inv_hash, salt='profile')
 
-            password = request.POST.get('password')
+            log.debug("Request Body: %s" % request.body)
 
-            if len(password):
-                TrackTrainsUser.objects.create_user(invitation['to'], invitation['from'], password)
+            body = json.loads(request.body)
+
+            if body and body['password']:
+                password = body['password']
+                TrackTrainsUser.objects.create_user(invitation['to'],
+                    invitation['from'], password)
 
                 log.debug(invitation)
-                log.info('Invitation has been accepted by %s' % invitation['to'])
-                result = {'success': True}
+                log.info('Invitation has been accepted by %s'
+                            % invitation['to'])
+                result = {'success': True,
+                          'message': 'User has been registered'}
             else:
                 # TODO complex password check out
                 msg = 'Empty string is not a valid password.'
                 log.warning(msg)
-                result = {'success': False, 'msg': msg}
+                result = {'success': False, 'message': msg}
         except:
             # TODO advanced exceptions processing.
             #       Here can be various exceptions
             msg = 'Bad invitation'
             log.exception(msg)
-            result = {'success': False, 'msg': msg}
+            result = {'success': False, 'message': msg}
 
         self.log_throttled_access(request)
         return self.create_response(request, result)
@@ -73,7 +82,6 @@ class TrackTrainsUserResource(ModelResource):
         self.method_check(request, allowed=['post'])
         self.is_authenticated(request)
         self.throttle_check(request)
-
 
         if request.user.invites_counter > 0:
             invitation = {
@@ -84,11 +92,14 @@ class TrackTrainsUserResource(ModelResource):
 
             signed_invitation = signing.dumps(invitation, salt='profile')
 
-            email.send_invitation_email(request, invitation['from'], invitation['to'], signed_invitation)
+            email.send_invitation_email(request, invitation['from'],
+                invitation['to'], signed_invitation)
 
-            result = {'success': True}
+            result = {'success': True, 'message': 'User has been invited'}
         else:
-            result = {'success': False, 'message': "User can't send more invitations. Limit has came."}
+            result = { 'success': False,
+                       'message': "User can't send more invitations.\
+                         Limit has came."}
 
         self.log_throttled_access(request)
         return self.create_response(request, result)
