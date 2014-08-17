@@ -3,6 +3,7 @@ import logging
 from django.conf.urls import url
 from django.core import signing
 from django.core.mail import send_mail
+from tastypie import fields
 from tastypie.resources import ModelResource
 from tastypie.constants import ALL
 from tastypie.utils import trailing_slash
@@ -15,6 +16,8 @@ from utils import email
 log = logging.getLogger(__name__)
 
 class TrackTrainsUserResource(ModelResource):
+    inviter = fields.ForeignKey('self', 'inviter', null=True, blank=True)
+
     class Meta:
         queryset = TrackTrainsUser.objects.all()
         resource_name = 'user'
@@ -52,13 +55,13 @@ class TrackTrainsUserResource(ModelResource):
                 log.info('Invitation has been accepted by %s' % invitation['to'])
                 result = {'success': True}
             else:
-                # TODO complex password check out 
+                # TODO complex password check out
                 msg = 'Empty string is not a valid password.'
                 log.warning(msg)
                 result = {'success': False, 'msg': msg}
         except:
-            # TODO advanced exceptions processing. 
-            #       Here can be various exceptions 
+            # TODO advanced exceptions processing.
+            #       Here can be various exceptions
             msg = 'Bad invitation'
             log.exception(msg)
             result = {'success': False, 'msg': msg}
