@@ -10,7 +10,7 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 import os
 from django.core.exceptions import ImproperlyConfigured
 
-# Getting environment variables in right way 
+# Getting environment variables in right way
 # (from two scoope of django 1.5 with minor changes)
 def get_env_var(var_name):
     try:
@@ -50,13 +50,14 @@ DJANGO_APPS = (
 )
 
 THIRD_PARTY_APPS = (
-    'south', 
+    'south',
     'tastypie'
 )
 
 LOCAL_APPS = (
     'profiles',
-    'utils'
+    'utils',
+    'watcher'
 )
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -102,7 +103,7 @@ USE_L10N = True
 USE_TZ = True
 
 # Uploaded files
-MEDIA_ROOT = root('..', 'media') 
+MEDIA_ROOT = root('..', 'media')
 MEDIA_URL = '/media/'
 
 # Static files (CSS, JavaScript, Images)

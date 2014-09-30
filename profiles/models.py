@@ -118,7 +118,7 @@ class TrackTrainsUser(AbstractBaseUser, PermissionsMixin):
 
     inviter = models.ForeignKey(
         'self',
-        related_name = "The person who invited this user",
+        verbose_name = "The person who invited this user",
         null=True,
         blank=True
     )

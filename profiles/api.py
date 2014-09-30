@@ -3,7 +3,6 @@ import json
 
 from django.conf.urls import url
 from django.core import signing
-from django.core.mail import send_mail
 from tastypie import fields
 from tastypie.resources import ModelResource
 from tastypie.constants import ALL
