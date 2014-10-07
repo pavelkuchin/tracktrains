@@ -1,8 +1,10 @@
 from django.db import models
 
+
 class AbstractTask(models.Model):
     """
         Abstract class with initial and the necessary set of field
+        (There can be other types of tasks in the future)
     """
     owner = models.ForeignKey(
         'profiles.TrackTrainsUser',
@@ -11,13 +13,12 @@ class AbstractTask(models.Model):
     )
 
     is_active = models.BooleanField(
-        verbose_name="This task will be processed \
-                        by the job during next cycle.",
+        verbose_name="Active for processing",
         default=True
     )
     is_successful = models.BooleanField(
         default=False,
-        verbose_name="The match had been found during the task processing."
+        verbose_name="Seat has been found"
     )
 
     created = models.DateTimeField(auto_now_add=True)
@@ -43,6 +44,18 @@ class ByRwTask(AbstractTask):
         ('T', 'Top place')
     )
 
+    # Choises for cars
+    # TODO find out the appropriate names for the car types.
+    CAR_CHOISES = (
+        ('ANY', 'Any type'),
+        ('VIP', 'VIP car'),
+        ('SLE', 'Sleeping car'),
+        ('COM', 'Compartment car'),
+        ('RB', 'Reserved-berths car'),
+        ('RS', 'Car with regular seats'),
+        ('TC', 'Third-class car')
+    )
+
     departure_point = models.CharField(
         verbose_name="The departure station name",
         blank = False,
@@ -61,10 +74,11 @@ class ByRwTask(AbstractTask):
         blank = False,
         max_length = 5
     )
-    car = models.IntegerField(
-        verbose_name="Preferred train car number, can null if any",
-        blank = True,
-        null = True
+    car = models.CharField(
+        verbose_name="Preferred train car type",
+        default='ANY',
+        choices=CAR_CHOISES,
+        max_length=5
     )
     seat = models.CharField(
         verbose_name="Preferred train seat",

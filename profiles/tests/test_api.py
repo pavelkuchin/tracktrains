@@ -2,16 +2,15 @@ import re
 
 from django.core import mail
 from django.contrib.auth import authenticate
-from django.test.utils import override_settings
 
 from tastypie.test import ResourceTestCase
 
 from profiles.models import TrackTrainsUser
 
 
-class TrackTrainsUserResource(ResourceTestCase):
+class TestTrackTrainsUserResource(ResourceTestCase):
     def setUp(self):
-        super(TrackTrainsUserResource, self).setUp()
+        super(TestTrackTrainsUserResource, self).setUp()
 
         self.super_user_email = u"supertest@test.ts"
         self.super_user_pass = u"test"

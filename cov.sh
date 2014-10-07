@@ -1,3 +1,3 @@
 #!/bin/sh
-coverage run --source='.' manage.py test
+coverage run --source='.' --omit='*migrations*,*tests*,manage.py' manage.py test
 coverage report
