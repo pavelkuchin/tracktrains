@@ -75,8 +75,6 @@ class TestByRwTaskResource(ResourceTestCase):
         obj_list = self.deserialize(resp)
 
         self.assertEqual(len(obj_list['objects']), 2)
-        self.assertEqual(obj_list['objects'][0]['train'], self.task1.train)
-        self.assertEqual(obj_list['objects'][1]['train'], self.task2.train)
 
     def test_get_detail_unauthorized(self):
         self.assertHttpUnauthorized(self.api_client.get(
