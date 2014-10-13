@@ -7,11 +7,11 @@ class OwnerBasedAuthorization(Authorization):
     def read_detail(self, object_list, bundle):
         return bundle.obj.owner == bundle.request.user
 
+    # TODO check tastypie sources, seems that for now tastypie
+    # does not use this method
     def create_list(self, object_list, bundle):
-        # TODO Auto assigned owner
         allowed = []
 
-        # Since they may not all be saved, iterate over them.
         for obj in object_list:
             if obj.owner == bundle.request.user:
                 allowed.append(obj)
@@ -21,6 +21,8 @@ class OwnerBasedAuthorization(Authorization):
     def create_detail(self, object_list, bundle):
         return bundle.obj.owner == bundle.request.user
 
+    # TODO check tastypie sources, seems that for now tastypie
+    # does not use this method
     def update_list(self, object_list, bundle):
         allowed = []
 

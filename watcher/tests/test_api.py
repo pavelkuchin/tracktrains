@@ -171,3 +171,178 @@ class TestByRwTaskResource(ResourceTestCase):
         )
         new_count = ByRwTask.objects.count()
         self.assertEqual(old_count - 1, new_count)
+
+class TestByRwTaskResourceAuth(ResourceTestCase):
+    def setUp(self):
+        super(TestByRwTaskResourceAuth, self).setUp()
+
+        self.super_user_email = u"supertest@test.ts"
+        self.super_user_pass = u"test"
+
+        self.user1_email = u"test1@test.ts"
+        self.user1_pass = u"test"
+
+        self.user2_email = u"test2@test.ts"
+        self.user2_pass = u"test"
+
+        self.list_url = u"/api/v1/byrwtask/"
+        self.details_url = u"/api/v1/byrwtask/%d/"
+
+        self.superuser = TrackTrainsUser.objects.create_superuser(
+            self.super_user_email,
+            self.super_user_pass)
+
+        self.user1 = TrackTrainsUser.objects.\
+            create_user(self.user1_email, self.super_user_email, self.user1_pass)
+
+        self.user2 = TrackTrainsUser.objects.\
+            create_user(self.user2_email, self.super_user_email, self.user2_pass)
+
+        self.task1 = ByRwTask()
+        self.task1.owner = self.user1
+        self.task1.train = "67B"
+        self.task1.departure_point = "Gomel"
+        self.task1.destination_point = "Minsk"
+        self.task1.departure_date = date.today()
+        self.task1.save()
+
+        self.task2 = ByRwTask()
+        self.task2.owner = self.user2
+        self.task2.train = "67C"
+        self.task2.departure_point = "Minsk"
+        self.task2.destination_point = "Kiev"
+        self.task2.departure_date = date.today()
+        self.task2.save()
+
+        self.post_data1 = {
+                "train": "34F",
+                "departure_point": "Krakov",
+                "destination_point": "Lviv",
+                "departure_date": date.today(),
+                "car": 1,
+                "seat": "T",
+                "owner": "/api/v1/user/%d/" % (self.user2.pk,)
+            }
+
+        self.post_data2 = {
+                "train": "24F",
+                "departure_point": "Gomel",
+                "destination_point": "London",
+                "departure_date": date.today(),
+                "car": 1,
+                "seat": "T",
+                "owner": "/api/v1/user/%d/" % (self.user2.pk,)
+            }
+
+    def get_credentials(self, usernum=1):
+        if usernum == 0:
+            return self.create_basic(
+                username=self.super_user_email,
+                password=self.super_user_pass)
+        elif usernum == 1:
+            return self.create_basic(
+                username=self.user1_email,
+                password=self.user1_pass)
+        elif usernum == 2:
+            return self.create_basic(
+                username=self.user2_email,
+                password=self.user2_pass)
+
+    def test_get_list(self):
+        resp = self.api_client.get(
+            self.list_url,
+            authentication=self.get_credentials(1)
+        )
+        self.assertValidJSONResponse(resp)
+
+        obj_list = self.deserialize(resp)
+
+        self.assertEqual(len(obj_list['objects']), 1)
+        self.assertEqual(obj_list['objects'][0]['train'], self.task1.train)
+
+    def test_get_detail(self):
+        resp = self.api_client.get(
+            self.details_url % (self.task2.pk,),
+            authentication=self.get_credentials(1)
+        )
+
+        self.assertHttpUnauthorized(resp)
+
+    def test_post_item(self):
+        self.assertHttpUnauthorized(self.api_client.post(
+            self.list_url,
+            data=self.post_data1,
+            authentication=self.get_credentials(1)
+        ))
+
+    def test_post_list(self):
+        old_count = ByRwTask.objects.count()
+
+        self.assertHttpAccepted(self.api_client.patch(
+            self.list_url,
+            data={"objects":[self.post_data1, self.post_data2]},
+            authentication=self.get_credentials(2)
+        ))
+
+        new_count = ByRwTask.objects.count()
+
+        self.assertEqual(old_count+2, new_count)
+
+    def test_put_detail(self):
+        resp = self.api_client.get(
+            self.details_url % (self.task1.pk,),
+            authentication=self.get_credentials(1)
+        )
+        obj = self.deserialize(resp).copy()
+
+        obj['destination_point'] = "Gomel"
+
+        resp = self.api_client.put(
+            self.details_url % (self.task2.pk,),
+            data=obj,
+            authentication=self.get_credentials(1)
+        )
+
+        self.assertHttpUnauthorized(resp)
+
+        self.assertEqual(self.task2.destination_point, "Kiev")
+
+    def test_put_list(self):
+        resp1 = self.api_client.get(
+            self.details_url % (self.task1.pk,),
+            authentication=self.get_credentials(1)
+        )
+        obj1 = self.deserialize(resp1).copy()
+        obj2 = self.deserialize(resp1).copy()
+
+        obj1['destination_point'] = "Gomel"
+        obj2['destination_point'] = "Rio"
+        obj2['resource_url'] = self.details_url % (self.task1.pk,)
+
+        resp = self.api_client.patch(
+            self.details_url % (self.task2.pk,),
+            data={"objects": [obj1, obj2]},
+            authentication=self.get_credentials(1)
+        )
+
+        self.assertHttpUnauthorized(resp)
+
+        self.assertEqual(self.task2.destination_point, "Kiev")
+
+
+    def test_delete_detail(self):
+        self.assertHttpUnauthorized(
+            self.api_client.delete(
+                self.details_url % (self.task2.pk,),
+                authentication=self.get_credentials(1)
+            )
+        )
+
+    def test_delete_list(self):
+        old_count = ByRwTask.objects.count()
+        self.assertHttpAccepted(self.api_client.delete(
+                self.list_url,
+                authentication=self.get_credentials(1)))
+        new_count = ByRwTask.objects.count()
+
+        self.assertEqual(old_count, new_count+1)
