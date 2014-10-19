@@ -45,7 +45,6 @@ class ByRwTask(AbstractTask):
     )
 
     # Choises for cars
-    # TODO find out the appropriate names for the car types.
     CAR_CHOISES = (
         ('ANY', 'Any type'),
         ('VIP', 'VIP car'),

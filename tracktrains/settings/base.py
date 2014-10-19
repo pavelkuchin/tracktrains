@@ -115,3 +115,8 @@ TEMPLATE_DIRS = (root('..', 'templates'),)
 
 # Front-End links
 SIGNUP_PAGE = "signup"
+
+# BYRW Job script settings
+BYRW_BASE_URL = get_env_var('BYRW_BASE_URL')
+BYRW_DATA_URL = get_env_var('BYRW_DATA_URL')
+BYRW_NAMESPACE = get_env_var('BYRW_NAMESPACE')
