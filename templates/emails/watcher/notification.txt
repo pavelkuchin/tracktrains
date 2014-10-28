@@ -1,0 +1,7 @@
+The seat has been {{ action }} on {{ departure_date }},
+    from {{ departure_point }} to {{ destination_point }}
+
+Details:
+Train: {{ train }}
+Car: {{ car }}
+Seat: {{ seat }}

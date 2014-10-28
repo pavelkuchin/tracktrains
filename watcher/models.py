@@ -41,7 +41,9 @@ class ByRwTask(AbstractTask):
     SEAT_CHOISES = (
         ('ANY', 'Any seat'),
         ('B', 'Bottom place'),
-        ('T', 'Top place')
+        ('T', 'Top place'),
+        ('BS', 'Bottom place by side'),
+        ('TS', 'Top place by side')
     )
 
     # Choises for cars
@@ -68,9 +70,10 @@ class ByRwTask(AbstractTask):
     departure_date = models.DateField(
         verbose_name="The required departure date"
     )
+    # if train code is empty then any train for date and direction
     train = models.CharField(
         verbose_name="The train short code id",
-        blank = False,
+        blank = True,
         max_length = 5
     )
     car = models.CharField(
