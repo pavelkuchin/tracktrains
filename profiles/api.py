@@ -91,8 +91,8 @@ class TrackTrainsUserResource(ModelResource):
 
             signed_invitation = signing.dumps(invitation, salt='profile')
 
-            email.send_invitation_email(request, invitation['from'],
-                invitation['to'], signed_invitation)
+            email.send_invitation_email(invitation['from'], invitation['to'],
+                signed_invitation)
 
             result = {'success': True, 'message': 'User has been invited'}
         else:

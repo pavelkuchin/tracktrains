@@ -2,14 +2,14 @@ import logging
 
 from django.core.mail import EmailMultiAlternatives
 from django.conf import settings
-from django.template import loader, RequestContext, Context
+from django.template import loader, Context
 
 from watcher.models import ByRwTask
 
 
 log = logging.getLogger(__name__)
 
-def send_invitation_email(request, from_addr, to_addr, signed_invitation):
+def send_invitation_email(from_addr, to_addr, signed_invitation):
     """
         Send the invitation to join
     """
@@ -20,9 +20,10 @@ def send_invitation_email(request, from_addr, to_addr, signed_invitation):
 
     log.debug('The hash is: %s', signed_invitation)
     payload = {
-        'link_to_signup': 'http://%s/%s/%s/' %  (settings.HOST, settings.SIGNUP_PAGE, signed_invitation)
+        'link_to_signup': 'http://%s/%s/%s/' %
+            (settings.HOST, settings.SIGNUP_PAGE, signed_invitation)
     }
-    c = RequestContext(request, payload)
+    c = Context(payload)
 
     msg = EmailMultiAlternatives(subject, text_content.render(c), from_addr, [to_addr])
     msg.attach_alternative(html_content.render(c), "text/html")

@@ -159,7 +159,7 @@ class TestTrackTrainsUserResource(ResourceTestCase):
     def test_invite_signup(self):
         email = "unittest@test.ts"
         password = "testpassword"
-        pattern = r"http://localhost:8080/signup/(.+)/"
+        pattern = r"/signup/(.+)/"
 
         # send invitation
         resp = self.deserialize(
