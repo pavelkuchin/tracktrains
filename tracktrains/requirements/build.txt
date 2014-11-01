@@ -1,0 +1,5 @@
+-r base.txt
+
+# dependencies for build process (travis-ci, coveralls.io)
+coverage==3.7.1
+coveralls==0.4.4

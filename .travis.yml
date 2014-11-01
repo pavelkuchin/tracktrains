@@ -1,8 +1,9 @@
 language: python
 python: "2.7"
-install: pip install -r ./tracktrains/requirements/local.txt
+install: pip install -r ./tracktrains/requirements/build.txt
 before_script:
     - psql -c 'create database tracktrains;' -U postgres
     - python manage.py syncdb --noinput
     - python manage.py migrate
-script: python manage.py test
+script: ./cov.sh
+after_success: coveralls
