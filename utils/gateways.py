@@ -31,12 +31,11 @@ class GatewayByRw():
     ]
 
     HEADERS = {
-        'User-Agent': 'tracktrains user agent 0.1',
+        'User-Agent': 'Tracktrains user agent 0.1',
         'From': 'webmaster@tracktrains.io'
     }
 
     def __init__(self):
-        # TODO specify a client string (browser string)
         self.session = requests.Session()
         self.response_trains = None
 
