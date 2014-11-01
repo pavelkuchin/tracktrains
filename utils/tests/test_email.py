@@ -3,7 +3,6 @@ import datetime
 
 from django.test import TestCase
 from django.core import mail
-from django.conf import settings
 
 from profiles.models import TrackTrainsUser
 from watcher.models import ByRwTask
@@ -70,8 +69,8 @@ class EmailSendersTest(TestCase):
         cars = dict(ByRwTask.CAR_CHOISES)
         seats = dict(ByRwTask.SEAT_CHOISES)
 
-
-        self.assertTrue(unicode(self.date_now.strftime("%b. %d, %Y")) in msg.body)
+        str_date_now = self.date_now.strftime("%b. %d, %Y").replace(' 0', ' ')
+        self.assertTrue(unicode(str_date_now) in msg.body)
         self.assertTrue(unicode(self.task.departure_point) in msg.body)
         self.assertTrue(unicode(self.task.destination_point) in msg.body)
         self.assertTrue(unicode(self.task.train) in msg.body)
