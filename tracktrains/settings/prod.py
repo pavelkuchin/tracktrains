@@ -1,7 +1,7 @@
 from .base import *
 
 # Settings which are specific for the production environment.
-HOST = "tracktraing.org"
+HOST = "trackseats.info"
 
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG

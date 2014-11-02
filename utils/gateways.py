@@ -31,8 +31,8 @@ class GatewayByRw():
     ]
 
     HEADERS = {
-        'User-Agent': 'Tracktrains user agent 0.1',
-        'From': 'webmaster@tracktrains.io'
+        'User-Agent': 'Trackseats user agent 0.1',
+        'From': 'webmaster@%s' % settings.HOST
     }
 
     def __init__(self):
