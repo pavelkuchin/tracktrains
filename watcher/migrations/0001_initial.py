@@ -1,85 +1,38 @@
 # -*- coding: utf-8 -*-
-from south.utils import datetime_utils as datetime
-from south.db import db
-from south.v2 import SchemaMigration
-from django.db import models
+from __future__ import unicode_literals
+
+from django.db import models, migrations
+from django.conf import settings
 
 
-class Migration(SchemaMigration):
+class Migration(migrations.Migration):
 
-    def forwards(self, orm):
-        # Adding model 'ByRwTask'
-        db.create_table(u'watcher_byrwtask', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('owner', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['profiles.TrackTrainsUser'])),
-            ('created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('modified', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, blank=True)),
-            ('tracked', self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True)),
-            ('departure_point', self.gf('django.db.models.fields.CharField')(max_length=255)),
-            ('destination_point', self.gf('django.db.models.fields.CharField')(max_length=255)),
-            ('departure_date', self.gf('django.db.models.fields.DateField')()),
-            ('train', self.gf('django.db.models.fields.CharField')(max_length=5)),
-            ('car', self.gf('django.db.models.fields.IntegerField')(null=True, blank=True)),
-            ('seat', self.gf('django.db.models.fields.CharField')(default='ANY', max_length=5)),
-        ))
-        db.send_create_signal(u'watcher', ['ByRwTask'])
+    dependencies = [
+        migrations.swappable_dependency(settings.AUTH_USER_MODEL),
+    ]
 
-
-    def backwards(self, orm):
-        # Deleting model 'ByRwTask'
-        db.delete_table(u'watcher_byrwtask')
-
-
-    models = {
-        u'auth.group': {
-            'Meta': {'object_name': 'Group'},
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '80'}),
-            'permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['auth.Permission']", 'symmetrical': 'False', 'blank': 'True'})
-        },
-        u'auth.permission': {
-            'Meta': {'ordering': "(u'content_type__app_label', u'content_type__model', u'codename')", 'unique_together': "((u'content_type', u'codename'),)", 'object_name': 'Permission'},
-            'codename': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'content_type': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['contenttypes.ContentType']"}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '50'})
-        },
-        u'contenttypes.contenttype': {
-            'Meta': {'ordering': "('name',)", 'unique_together': "(('app_label', 'model'),)", 'object_name': 'ContentType', 'db_table': "'django_content_type'"},
-            'app_label': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
-        },
-        u'profiles.tracktrainsuser': {
-            'Meta': {'object_name': 'TrackTrainsUser'},
-            'email': ('django.db.models.fields.EmailField', [], {'unique': 'True', 'max_length': '255', 'db_index': 'True'}),
-            'groups': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "u'user_set'", 'blank': 'True', 'to': u"orm['auth.Group']"}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'inviter': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['profiles.TrackTrainsUser']", 'null': 'True', 'blank': 'True'}),
-            'invites_counter': ('django.db.models.fields.PositiveSmallIntegerField', [], {'default': '0'}),
-            'is_active': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'is_staff': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'is_superuser': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'last_login': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
-            'password': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
-            'reset_hash': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
-            'user_permissions': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "u'user_set'", 'blank': 'True', 'to': u"orm['auth.Permission']"})
-        },
-        u'watcher.byrwtask': {
-            'Meta': {'object_name': 'ByRwTask'},
-            'car': ('django.db.models.fields.IntegerField', [], {'null': 'True', 'blank': 'True'}),
-            'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'departure_date': ('django.db.models.fields.DateField', [], {}),
-            'departure_point': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'destination_point': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'modified': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
-            'owner': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['profiles.TrackTrainsUser']"}),
-            'seat': ('django.db.models.fields.CharField', [], {'default': "'ANY'", 'max_length': '5'}),
-            'tracked': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
-            'train': ('django.db.models.fields.CharField', [], {'max_length': '5'})
-        }
-    }
-
-    complete_apps = ['watcher']
+    operations = [
+        migrations.CreateModel(
+            name='ByRwTask',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('is_active', models.BooleanField(default=True, verbose_name=b'Active for processing')),
+                ('is_successful', models.BooleanField(default=False, verbose_name=b'Seat has been found')),
+                ('created', models.DateTimeField(auto_now_add=True)),
+                ('modified', models.DateTimeField(auto_now=True)),
+                ('tracked', models.DateTimeField(null=True, verbose_name=b'When the Job has processed the task last time', blank=True)),
+                ('departure_point', models.CharField(max_length=255, verbose_name=b'The departure station name')),
+                ('destination_point', models.CharField(max_length=255, verbose_name=b'The destination station name')),
+                ('departure_date', models.DateField(verbose_name=b'The required departure date')),
+                ('train', models.CharField(max_length=5, verbose_name=b'The train short code id', blank=True)),
+                ('car', models.CharField(default=b'ANY', max_length=5, verbose_name=b'Preferred train car type', choices=[(b'ANY', b'Any type'), (b'VIP', b'VIP car'), (b'SLE', b'Sleeping car'), (b'COM', b'Compartment car'), (b'RB', b'Reserved-berths car'), (b'RS', b'Car with regular seats'), (b'TC', b'Third-class car')])),
+                ('seat', models.CharField(default=b'ANY', max_length=5, verbose_name=b'Preferred train seat', choices=[(b'ANY', b'Any seat'), (b'B', b'Bottom place'), (b'T', b'Top place'), (b'BS', b'Bottom place by side'), (b'TS', b'Top place by side')])),
+                ('owner', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+            ],
+            options={
+                'verbose_name': 'By RW Task',
+                'verbose_name_plural': 'By RW Tasks',
+            },
+            bases=(models.Model,),
+        ),
+    ]

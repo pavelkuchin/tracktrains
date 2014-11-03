@@ -63,6 +63,7 @@ class TrackTrainsUserChangeForm(forms.ModelForm):
 
     class Meta:
         model = TrackTrainsUser
+        fields = '__all__'
 
     def clean_password(self):
         """
@@ -77,7 +78,7 @@ class TrackTrainsUserAdmin(UserAdmin):
     form = TrackTrainsUserChangeForm
 
     list_display = (
-        "email", 
+        "email",
         "is_staff",
         "inviter",
         "invites_counter"
@@ -134,5 +135,5 @@ class TrackTrainsUserAdmin(UserAdmin):
 
 # >>> Registers admin models here <<< #
 admin.site.register(
-    TrackTrainsUser, 
+    TrackTrainsUser,
     TrackTrainsUserAdmin)
