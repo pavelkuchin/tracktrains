@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 
 
 class AbstractTask(models.Model):
@@ -7,7 +8,7 @@ class AbstractTask(models.Model):
         (There can be other types of tasks in the future)
     """
     owner = models.ForeignKey(
-        'profiles.TrackTrainsUser',
+        settings.AUTH_USER_MODEL,
         null=False,
         blank=False
     )
