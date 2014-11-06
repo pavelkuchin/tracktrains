@@ -257,12 +257,10 @@ class TestByRwTaskResourceAuth(ResourceTestCase):
 
         self.login_url = u'/api/v1/user/login/'
 
-        resp = self.api_client.post(
+        self.api_client.post(
             self.login_url,
             data = auth_data
         )
-
-        print('> des resp: %s' % self.deserialize(resp))
 
     def test_get_list(self):
         self.auth(1)

@@ -15,7 +15,7 @@ class GatewaysTest(TestCase):
         with GatewayByRw() as gw:
             departure_point = "ГОМЕЛЬ"
             destination_point = "МИНСК"
-            departure_date = datetime.datetime.now() + datetime.timedelta(days=1)
+            departure_date = datetime.datetime.now() + datetime.timedelta(days=5)
             trains = gw.get_trains(
                 departure_point,
                 destination_point,
