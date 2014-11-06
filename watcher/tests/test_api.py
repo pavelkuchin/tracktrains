@@ -52,24 +52,31 @@ class TestByRwTaskResource(ResourceTestCase):
                 "owner": "/api/v1/user/%d/" % (self.user.pk,)
             }
 
-    def get_credentials(self, superuser=False):
+    def auth(self, superuser=False):
         if superuser:
-            return self.create_basic(
-                username=self.super_user_email,
-                password=self.super_user_pass)
+            auth_data = {
+                'login': self.super_user_email,
+                'password': self.super_user_pass
+            }
         else:
-            return self.create_basic(
-                username=self.user_email,
-                password=self.user_pass)
+            auth_data = {
+                'login': self.user_email,
+                'password': self.user_pass
+            }
+
+        login_url = u'/api/v1/user/login/'
+
+        self.api_client.post(
+            login_url,
+            data=auth_data
+        )
 
     def test_get_list_unauthorized(self):
         self.assertHttpUnauthorized(self.api_client.get(self.list_url))
 
     def test_get_list(self):
-        resp = self.api_client.get(
-            self.list_url,
-            authentication=self.get_credentials()
-        )
+        self.auth()
+        resp = self.api_client.get(self.list_url)
         self.assertValidJSONResponse(resp)
 
         obj_list = self.deserialize(resp)
@@ -83,10 +90,9 @@ class TestByRwTaskResource(ResourceTestCase):
         )
 
     def test_get_detail(self):
-        resp = self.api_client.get(
-            self.details_url % (self.task1.id,),
-            authentication=self.get_credentials()
-        )
+        self.auth()
+
+        resp = self.api_client.get(self.details_url % (self.task1.id,))
 
         self.assertValidJSONResponse(resp)
 
@@ -118,12 +124,13 @@ class TestByRwTaskResource(ResourceTestCase):
         ))
 
     def test_post_list(self):
+        self.auth()
+
         old_count = ByRwTask.objects.count()
 
         self.assertHttpCreated(self.api_client.post(
             self.list_url,
-            data=self.post_data,
-            authentication=self.get_credentials()
+            data=self.post_data
         ))
 
         self.assertEqual(ByRwTask.objects.count(), old_count + 1)
@@ -135,10 +142,9 @@ class TestByRwTaskResource(ResourceTestCase):
         ))
 
     def test_put_detail(self):
-        resp = self.api_client.get(
-            self.details_url % (self.task1.pk,),
-            authentication=self.get_credentials()
-        )
+        self.auth()
+
+        resp = self.api_client.get(self.details_url % (self.task1.pk,))
         obj = self.deserialize(resp).copy()
 
         obj['destination_point'] = "Kiev"
@@ -147,8 +153,7 @@ class TestByRwTaskResource(ResourceTestCase):
 
         resp = self.api_client.put(
             self.details_url % (obj['id'],),
-            data=obj,
-            authentication=self.get_credentials()
+            data=obj
         )
 
         self.assertHttpAccepted(resp)
@@ -162,12 +167,11 @@ class TestByRwTaskResource(ResourceTestCase):
         )
 
     def test_delete_detail(self):
+        self.auth()
+
         old_count = ByRwTask.objects.count()
         self.assertHttpAccepted(
-            self.api_client.delete(
-                self.details_url % (self.task1.pk,),
-                authentication=self.get_credentials()
-            )
+            self.api_client.delete(self.details_url % (self.task1.pk,))
         )
         new_count = ByRwTask.objects.count()
         self.assertEqual(old_count - 1, new_count)
@@ -234,24 +238,36 @@ class TestByRwTaskResourceAuth(ResourceTestCase):
                 "owner": "/api/v1/user/%d/" % (self.user2.pk,)
             }
 
-    def get_credentials(self, usernum=1):
+    def auth(self, usernum=1):
         if usernum == 0:
-            return self.create_basic(
-                username=self.super_user_email,
-                password=self.super_user_pass)
+            auth_data = {
+                'login': self.super_user_emai,
+                'password': self.super_user_pass
+            }
         elif usernum == 1:
-            return self.create_basic(
-                username=self.user1_email,
-                password=self.user1_pass)
+            auth_data = {
+                'login': self.user1_email,
+                'password': self.user1_pass
+            }
         elif usernum == 2:
-            return self.create_basic(
-                username=self.user2_email,
-                password=self.user2_pass)
+            auth_data = {
+                'login': self.user2_email,
+                'password': self.user2_pass
+            }
+
+        self.login_url = u'/api/v1/user/login/'
+
+        resp = self.api_client.post(
+            self.login_url,
+            data = auth_data
+        )
+
+        print('> des resp: %s' % self.deserialize(resp))
 
     def test_get_list(self):
+        self.auth(1)
         resp = self.api_client.get(
-            self.list_url,
-            authentication=self.get_credentials(1)
+            self.list_url
         )
         self.assertValidJSONResponse(resp)
 
@@ -261,27 +277,28 @@ class TestByRwTaskResourceAuth(ResourceTestCase):
         self.assertEqual(obj_list['objects'][0]['train'], self.task1.train)
 
     def test_get_detail(self):
+        self.auth(1)
         resp = self.api_client.get(
-            self.details_url % (self.task2.pk,),
-            authentication=self.get_credentials(1)
+            self.details_url % (self.task2.pk,)
         )
 
         self.assertHttpUnauthorized(resp)
 
     def test_post_item(self):
+        self.auth(1)
         self.assertHttpUnauthorized(self.api_client.post(
             self.list_url,
-            data=self.post_data1,
-            authentication=self.get_credentials(1)
+            data=self.post_data1
         ))
 
     def test_post_list(self):
+        self.auth(2)
+
         old_count = ByRwTask.objects.count()
 
         self.assertHttpAccepted(self.api_client.patch(
             self.list_url,
-            data={"objects":[self.post_data1, self.post_data2]},
-            authentication=self.get_credentials(2)
+            data={"objects":[self.post_data1, self.post_data2]}
         ))
 
         new_count = ByRwTask.objects.count()
@@ -289,9 +306,9 @@ class TestByRwTaskResourceAuth(ResourceTestCase):
         self.assertEqual(old_count+2, new_count)
 
     def test_put_detail(self):
+        self.auth(1)
         resp = self.api_client.get(
-            self.details_url % (self.task1.pk,),
-            authentication=self.get_credentials(1)
+            self.details_url % (self.task1.pk,)
         )
         obj = self.deserialize(resp).copy()
 
@@ -299,8 +316,7 @@ class TestByRwTaskResourceAuth(ResourceTestCase):
 
         resp = self.api_client.put(
             self.details_url % (self.task2.pk,),
-            data=obj,
-            authentication=self.get_credentials(1)
+            data=obj
         )
 
         self.assertHttpUnauthorized(resp)
@@ -308,9 +324,9 @@ class TestByRwTaskResourceAuth(ResourceTestCase):
         self.assertEqual(self.task2.destination_point, "Kiev")
 
     def test_put_list(self):
+        self.auth(1)
         resp1 = self.api_client.get(
-            self.details_url % (self.task1.pk,),
-            authentication=self.get_credentials(1)
+            self.details_url % (self.task1.pk,)
         )
         obj1 = self.deserialize(resp1).copy()
         obj2 = self.deserialize(resp1).copy()
@@ -321,8 +337,7 @@ class TestByRwTaskResourceAuth(ResourceTestCase):
 
         resp = self.api_client.patch(
             self.details_url % (self.task2.pk,),
-            data={"objects": [obj1, obj2]},
-            authentication=self.get_credentials(1)
+            data={"objects": [obj1, obj2]}
         )
 
         self.assertHttpUnauthorized(resp)
@@ -331,18 +346,18 @@ class TestByRwTaskResourceAuth(ResourceTestCase):
 
 
     def test_delete_detail(self):
+        self.auth(1)
+
         self.assertHttpUnauthorized(
             self.api_client.delete(
-                self.details_url % (self.task2.pk,),
-                authentication=self.get_credentials(1)
+                self.details_url % (self.task2.pk,)
             )
         )
 
     def test_delete_list(self):
+        self.auth(1)
         old_count = ByRwTask.objects.count()
-        self.assertHttpAccepted(self.api_client.delete(
-                self.list_url,
-                authentication=self.get_credentials(1)))
+        self.assertHttpAccepted(self.api_client.delete(self.list_url))
         new_count = ByRwTask.objects.count()
 
         self.assertEqual(old_count, new_count+1)

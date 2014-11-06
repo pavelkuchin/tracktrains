@@ -3,12 +3,13 @@ import json
 
 from django.conf.urls import url
 from django.core import signing
+from django.contrib.auth import authenticate, login, logout
 from tastypie import fields
 from tastypie.resources import ModelResource
 from tastypie.constants import ALL
 from tastypie.utils import trailing_slash
 from tastypie.authorization import ReadOnlyAuthorization
-from tastypie.authentication import BasicAuthentication
+from tastypie.authentication import SessionAuthentication
 
 from .models import TrackTrainsUser
 from utils import email
@@ -21,7 +22,7 @@ class TrackTrainsUserResource(ModelResource):
     class Meta:
         queryset = TrackTrainsUser.objects.all()
         resource_name = 'user'
-        authentication = BasicAuthentication()
+        authentication = SessionAuthentication()
         authorization = ReadOnlyAuthorization()
         filtering = {'email': ALL}
         allowed_methods = ['get']
@@ -31,17 +32,69 @@ class TrackTrainsUserResource(ModelResource):
         return [
             url(r"(?P<resource_name>%s)/signup/(?P<hash>.+)%s$"
                     % (self._meta.resource_name, trailing_slash()),
-                self.wrap_view("signup"),
+                self.wrap_view("api_signup"),
                 name="api_signup"),
             url(r"(?P<resource_name>%s)/invite/(?P<email>.+)%s$"
                     % (self._meta.resource_name, trailing_slash()),
-                self.wrap_view("invite"),
-                name="api_invite")
+                self.wrap_view("api_invite"),
+                name="api_invite"),
+            url(r"(?P<resource_name>%s)/login%s$"
+                    % (self._meta.resource_name, trailing_slash()),
+                self.wrap_view("api_login"),
+                name="api_login"),
+            url(r"(?P<resource_name>%s)/logout%s$"
+                    % (self._meta.resource_name, trailing_slash()),
+                self.wrap_view("api_logout"),
+                name="api_logout")
         ]
 
-    def signup(self, request, **kwargs):
+    def api_login(self, request, **kwargs):
         self.method_check(request, allowed=['post'])
-        self.throttle_check(request)
+#        self.throttle_check(request)
+
+        result = {}
+        body = json.loads(request.body)
+
+        if body and 'password' in body and 'login' in body:
+            email = body['login']
+            password = body['password']
+            user = authenticate(username=email, password=password)
+            if user is not None:
+                if user.is_active:
+                    login(request, user)
+                    msg = "You are logged in"
+                    result = {'success': True, 'message': msg}
+                else:
+                    msg = "User account is disabled"
+                    log.warning(msg)
+                    result = {'success': False, 'message': msg}
+            else:
+                msg = "Invalid login or password"
+                log.warning(msg)
+                result = {'success': False, 'message': msg}
+        else:
+            msg = "User login and password are required"
+            log.warning(msg)
+            result = {'success': False, 'message': msg}
+
+#        self.log_throttled_access(request)
+        return self.create_response(request, result)
+
+    def api_logout(self, request, **kwargs):
+        self.method_check(request, allowed=['post'])
+        self.is_authenticated(request)
+#        self.throttle_check(request)
+
+        msg = "You are logged out"
+        result = {'success': True, 'message': msg}
+        logout(request)
+
+#        self.log_throttled_access(request)
+        return self.create_response(request, result)
+
+    def api_signup(self, request, **kwargs):
+        self.method_check(request, allowed=['post'])
+#        self.throttle_check(request)
 
         inv_hash = kwargs['hash']
 
@@ -74,10 +127,10 @@ class TrackTrainsUserResource(ModelResource):
             log.exception(msg)
             result = {'success': False, 'message': msg}
 
-        self.log_throttled_access(request)
+#        self.log_throttled_access(request)
         return self.create_response(request, result)
 
-    def invite(self, request, **kwargs):
+    def api_invite(self, request, **kwargs):
         self.method_check(request, allowed=['post'])
         self.is_authenticated(request)
         self.throttle_check(request)

@@ -1,6 +1,6 @@
 from tastypie import fields
 from tastypie.resources import ModelResource
-from tastypie.authentication import BasicAuthentication
+from tastypie.authentication import SessionAuthentication
 
 from profiles.api import TrackTrainsUserResource
 from utils.authorization import OwnerBasedAuthorization
@@ -13,5 +13,5 @@ class ByRwTaskResource(ModelResource):
     class Meta:
         queryset = ByRwTask.objects.all()
         resource_name = 'byrwtask'
-        authentication = BasicAuthentication()
+        authentication = SessionAuthentication()
         authorization = OwnerBasedAuthorization()

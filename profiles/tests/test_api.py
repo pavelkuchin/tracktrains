@@ -45,15 +45,24 @@ class TestTrackTrainsUserResource(ResourceTestCase):
             'password': 'test'
         }
 
-    def get_credentials(self, without_invitations=False):
-        if without_invitations:
-            return self.create_basic(
-                username=self.super_user_email,
-                password=self.super_user_pass)
+    def auth(self, superuser=False):
+        if superuser:
+            auth_data = {
+                'login': self.userwi_email,
+                'password': self.userwi_pass
+            }
         else:
-            return self.create_basic(
-                username=self.user_email,
-                password=self.user_pass)
+            auth_data = {
+                'login': self.user_email,
+                'password': self.user_pass
+            }
+
+        login_url = u'/api/v1/user/login/'
+
+        self.api_client.post(
+            login_url,
+            data=auth_data
+        )
 
     def test_get_list_unauthorized(self):
         self.assertHttpUnauthorized(self.api_client.get(
@@ -61,15 +70,16 @@ class TestTrackTrainsUserResource(ResourceTestCase):
             format='json'))
 
     def test_get_list_json(self):
+        self.auth()
         resp = self.api_client.get(
             self.list_url,
-            format='json',
-            authentication=self.get_credentials())
+            format='json'
+        )
         self.assertValidJSONResponse(resp)
 
         self.assertEqual(len(self.deserialize(resp)['objects']), 3)
 
-        self.assertEqual(self.deserialize(resp)['objects'][1], {
+        self.assertEqual(self.deserialize(resp)['objects'][2], {
             u'resource_uri': self.details_url % (self.user.pk),
             u'email': self.user_email,
             u'inviter': self.details_url % (self.superuser.pk),
@@ -83,10 +93,10 @@ class TestTrackTrainsUserResource(ResourceTestCase):
             self.api_client.get(self.details_url, format='json'))
 
     def test_get_detail_json(self):
+        self.auth()
         resp = self.api_client.get(
             self.details_url % (self.user.pk),
-            format='json',
-            authentication=self.get_credentials()
+            format='json'
         )
 
         self.assertValidJSONResponse(resp)
@@ -107,12 +117,12 @@ class TestTrackTrainsUserResource(ResourceTestCase):
         )
 
     def test_post_list(self):
+        self.auth()
         self.assertHttpMethodNotAllowed(
             self.api_client.post(
                 self.list_url,
                 format='json',
-                data=self.post_data,
-                authentication=self.get_credentials()
+                data=self.post_data
             )
         )
 
@@ -126,11 +136,11 @@ class TestTrackTrainsUserResource(ResourceTestCase):
         )
 
     def test_put_details(self):
+        self.auth()
         orig_data = self.deserialize(
                         self.api_client.get(
                             self.details_url % (self.user.pk),
-                            format='json',
-                            authentication=self.get_credentials()
+                            format='json'
                         )
                     )
 
@@ -142,8 +152,7 @@ class TestTrackTrainsUserResource(ResourceTestCase):
             self.api_client.put(
                 self.details_url % (self.user.pk),
                 format='json',
-                data=new_data,
-                authentication=self.get_credentials()
+                data=new_data
             )
         )
 
@@ -156,11 +165,11 @@ class TestTrackTrainsUserResource(ResourceTestCase):
         )
 
     def test_delete_detail(self):
+        self.auth()
         self.assertHttpMethodNotAllowed(
             self.api_client.delete(
                 self.details_url % (self.user.pk),
-                format='json',
-                authentication=self.get_credentials()
+                format='json'
             )
         )
 
@@ -169,11 +178,11 @@ class TestTrackTrainsUserResource(ResourceTestCase):
         password = "testpassword"
         pattern = r"/signup/(.+)/"
 
+        self.auth()
+
         # send invitation
         resp = self.deserialize(
-            self.api_client.post(
-                self.invite_url % (email),
-                authentication=self.get_credentials())
+            self.api_client.post(self.invite_url % (email))
         )
 
         self.assertIsNotNone(resp)
@@ -233,11 +242,11 @@ class TestTrackTrainsUserResource(ResourceTestCase):
         password = ""
         pattern = r"/signup/(.+)/"
 
+        self.auth()
+
         # send invitation
         resp = self.deserialize(
-            self.api_client.post(
-                self.invite_url % (email),
-                authentication=self.get_credentials())
+            self.api_client.post(self.invite_url % (email))
         )
 
         self.assertIsNotNone(resp)
@@ -273,12 +282,118 @@ class TestTrackTrainsUserResource(ResourceTestCase):
     def test_without_invitations(self):
         email = "unittest@test.ts"
 
+        self.auth(True)
+
         # send invitation
         resp = self.deserialize(
-            self.api_client.post(
-                self.invite_url % (email),
-                authentication=self.get_credentials(True))
+            self.api_client.post(self.invite_url % (email))
         )
 
         self.assertIsNotNone(resp)
         self.assertEqual(resp["success"], False)
+
+    def test_login_success(self):
+        auth_data = {
+            'login': self.user_email,
+            'password': self.user_pass
+        }
+
+        login_url = u'/api/v1/user/login/'
+
+        resp = self.deserialize(self.api_client.post(
+            login_url,
+            data=auth_data
+        ))
+
+        self.assertIsNotNone(resp)
+        self.assertEqual(resp["success"], True)
+
+    def test_login_wrong_params(self):
+        auth_data = {
+            'wrong': self.user_email,
+            'again': self.user_pass
+        }
+
+        login_url = u'/api/v1/user/login/'
+
+        resp = self.deserialize(self.api_client.post(
+            login_url,
+            data=auth_data
+        ))
+
+        self.assertIsNotNone(resp)
+        self.assertEqual(resp["success"], False)
+
+    def test_login_wrong_password(self):
+        auth_data = {
+            'login': self.user_email,
+            'password': "wrong password"
+        }
+
+        login_url = u'/api/v1/user/login/'
+
+        resp = self.deserialize(self.api_client.post(
+            login_url,
+            data=auth_data
+        ))
+
+        self.assertIsNotNone(resp)
+        self.assertEqual(resp["success"], False)
+
+    def test_login_account_disabled(self):
+        auth_data = {
+            'login': self.user_email,
+            'password': self.user_pass
+        }
+
+        login_url = u'/api/v1/user/login/'
+
+        self.user.is_active = False
+        self.user.save()
+
+        resp = self.deserialize(self.api_client.post(
+            login_url,
+            data=auth_data
+        ))
+
+        self.assertIsNotNone(resp)
+        self.assertEqual(resp["success"], False)
+
+    def test_logout(self):
+        auth_data = {
+            'login': self.user_email,
+            'password': self.user_pass
+        }
+
+        login_url = u'/api/v1/user/login/'
+        logout_url = u'/api/v1/user/logout/'
+
+        self.api_client.post(
+            login_url,
+            data=auth_data
+        )
+
+        # We can get details when logged in
+        resp = self.api_client.get(
+            self.details_url % (self.user.pk),
+            format='json'
+        )
+
+        self.assertValidJSONResponse(resp)
+
+        self.assertKeys(self.deserialize(resp),
+            [u'email', u'inviter', u'invites_counter', \
+            u'is_active', u'is_staff', u'resource_uri'])
+        self.assertEqual(self.deserialize(resp)['email'], self.user_email)
+
+        resp = self.deserialize(self.api_client.post(
+            logout_url,
+            data={}
+        ))
+
+        self.assertIsNotNone(resp)
+        self.assertEqual(resp["success"], True)
+
+        # We cannot get details when logged out
+        self.assertHttpUnauthorized(
+            self.api_client.get(self.details_url, format='json'))
