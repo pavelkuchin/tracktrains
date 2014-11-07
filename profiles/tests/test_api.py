@@ -226,16 +226,15 @@ class TestTrackTrainsUserResource(ResourceTestCase):
         password = "testpassword"
 
         # registartion with token
-        resp = self.deserialize(
-            self.api_client.post(
+        resp = self.api_client.post(
                 self.signup_url % (token),
                 format='json',
                 data={'password': password}
-            )
         )
 
-        self.assertIsNotNone(resp)
-        self.assertEqual(resp["success"], False)
+
+        self.assertHttpBadRequest(resp)
+        self.assertGreater(len(resp.content), False)
 
     def test_bad_password(self):
         email = "unittest@test.ts"
@@ -268,16 +267,14 @@ class TestTrackTrainsUserResource(ResourceTestCase):
         self.assertGreater(len(token), 0)
 
         # registartion with token
-        resp = self.deserialize(
-            self.api_client.post(
+        resp = self.api_client.post(
                 self.signup_url % (token),
                 format='json',
                 data={'password': password}
-            )
         )
 
-        self.assertIsNotNone(resp)
-        self.assertEqual(resp["success"], False)
+        self.assertHttpBadRequest(resp)
+        self.assertGreater(len(resp.content), 0)
 
     def test_without_invitations(self):
         email = "unittest@test.ts"
@@ -285,12 +282,9 @@ class TestTrackTrainsUserResource(ResourceTestCase):
         self.auth(True)
 
         # send invitation
-        resp = self.deserialize(
-            self.api_client.post(self.invite_url % (email))
-        )
+        resp = self.api_client.post(self.invite_url % (email))
 
-        self.assertIsNotNone(resp)
-        self.assertEqual(resp["success"], False)
+        self.assertHttpForbidden(resp)
 
     def test_login_success(self):
         auth_data = {
@@ -316,13 +310,13 @@ class TestTrackTrainsUserResource(ResourceTestCase):
 
         login_url = u'/api/v1/user/login/'
 
-        resp = self.deserialize(self.api_client.post(
+        resp = self.api_client.post(
             login_url,
             data=auth_data
-        ))
+        )
 
-        self.assertIsNotNone(resp)
-        self.assertEqual(resp["success"], False)
+        self.assertHttpBadRequest(resp)
+        self.assertGreater(len(resp.content), 0)
 
     def test_login_wrong_password(self):
         auth_data = {
@@ -332,13 +326,13 @@ class TestTrackTrainsUserResource(ResourceTestCase):
 
         login_url = u'/api/v1/user/login/'
 
-        resp = self.deserialize(self.api_client.post(
+        resp = self.api_client.post(
             login_url,
             data=auth_data
-        ))
+        )
 
-        self.assertIsNotNone(resp)
-        self.assertEqual(resp["success"], False)
+        self.assertHttpBadRequest(resp)
+        self.assertGreater(len(resp.content), 0)
 
     def test_login_account_disabled(self):
         auth_data = {
@@ -351,13 +345,13 @@ class TestTrackTrainsUserResource(ResourceTestCase):
         self.user.is_active = False
         self.user.save()
 
-        resp = self.deserialize(self.api_client.post(
+        resp = self.api_client.post(
             login_url,
             data=auth_data
-        ))
+        )
 
-        self.assertIsNotNone(resp)
-        self.assertEqual(resp["success"], False)
+        self.assertHttpForbidden(resp)
+        self.assertGreater(len(resp.content), 0)
 
     def test_logout(self):
         auth_data = {

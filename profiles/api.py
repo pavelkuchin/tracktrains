@@ -10,6 +10,8 @@ from tastypie.constants import ALL
 from tastypie.utils import trailing_slash
 from tastypie.authorization import ReadOnlyAuthorization
 from tastypie.authentication import SessionAuthentication
+from tastypie.exceptions import ImmediateHttpResponse
+from tastypie.http import HttpForbidden, HttpBadRequest
 
 from .models import TrackTrainsUser
 from utils import email
@@ -67,15 +69,15 @@ class TrackTrainsUserResource(ModelResource):
                 else:
                     msg = "User account is disabled"
                     log.warning(msg)
-                    result = {'success': False, 'message': msg}
+                    raise ImmediateHttpResponse(HttpForbidden(msg))
             else:
                 msg = "Invalid login or password"
                 log.warning(msg)
-                result = {'success': False, 'message': msg}
+                raise ImmediateHttpResponse(HttpBadRequest(msg))
         else:
             msg = "User login and password are required"
             log.warning(msg)
-            result = {'success': False, 'message': msg}
+            raise ImmediateHttpResponse(HttpBadRequest(msg))
 
 #        self.log_throttled_access(request)
         return self.create_response(request, result)
@@ -119,13 +121,13 @@ class TrackTrainsUserResource(ModelResource):
                 # TODO complex password check out
                 msg = 'Empty string is not a valid password.'
                 log.warning(msg)
-                result = {'success': False, 'message': msg}
+                raise ImmediateHttpResponse(HttpBadRequest(msg))
         except:
             # TODO advanced exceptions processing.
             #       Here can be various exceptions
             msg = 'Bad invitation'
             log.exception(msg)
-            result = {'success': False, 'message': msg}
+            raise ImmediateHttpResponse(HttpBadRequest(msg))
 
 #        self.log_throttled_access(request)
         return self.create_response(request, result)
@@ -149,9 +151,8 @@ class TrackTrainsUserResource(ModelResource):
 
             result = {'success': True, 'message': 'User has been invited'}
         else:
-            result = { 'success': False,
-                       'message': "User can't send more invitations.\
-                         Limit has came."}
+            msg = "User can't send more invitations. Limit has came."
+            raise ImmediateHttpResponse(HttpForbidden(msg))
 
         self.log_throttled_access(request)
         return self.create_response(request, result)
