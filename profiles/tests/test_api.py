@@ -79,7 +79,14 @@ class TestTrackTrainsUserResource(ResourceTestCase):
 
         self.assertEqual(len(self.deserialize(resp)['objects']), 3)
 
-        self.assertEqual(self.deserialize(resp)['objects'][2], {
+        ctrl_user = {}
+
+        for i in self.deserialize(resp)['objects']:
+            if i['resource_uri'] == self.details_url % (self.user.pk):
+                ctrl_user = i
+                break
+
+        self.assertEqual(ctrl_user, {
             u'resource_uri': self.details_url % (self.user.pk),
             u'email': self.user_email,
             u'inviter': self.details_url % (self.superuser.pk),
