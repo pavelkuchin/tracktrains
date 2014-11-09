@@ -68,7 +68,7 @@ def send_byrw_notification_email(found, task):
     msg = EmailMultiAlternatives(
         subject,
         text_content.render(c),
-        "robot@tracktrains.io",
+        "notify@%s" % settings.HOST,
         [task.owner.email])
 
     msg.attach_alternative(html_content.render(c), "text/html")
