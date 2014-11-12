@@ -1,7 +1,7 @@
 from .base import *
 
 # Settings which are specific for the production environment.
-HOST = "trackseats.info"
+HOST = "api.trackseats.info"
 
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
