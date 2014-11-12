@@ -16,8 +16,8 @@ class TestByRwTaskResource(ResourceTestCase):
         self.user_email = u"test@test.ts"
         self.user_pass = u"test"
 
-        self.list_url = u"/api/v1/byrwtask/"
-        self.details_url = u"/api/v1/byrwtask/%d/"
+        self.list_url = u"/v1/byrwtask/"
+        self.details_url = u"/v1/byrwtask/%d/"
 
         self.superuser = TrackTrainsUser.objects.create_superuser(
             self.super_user_email,
@@ -49,7 +49,7 @@ class TestByRwTaskResource(ResourceTestCase):
                 "departure_date": date.today(),
                 "car": 1,
                 "seat": "T",
-                "owner": "/api/v1/user/%d/" % (self.user.pk,)
+                "owner": "/v1/user/%d/" % (self.user.pk,)
             }
 
     def auth(self, superuser=False):
@@ -64,7 +64,7 @@ class TestByRwTaskResource(ResourceTestCase):
                 'password': self.user_pass
             }
 
-        login_url = u'/api/v1/user/login/'
+        login_url = u'/v1/user/login/'
 
         self.api_client.post(
             login_url,
@@ -189,8 +189,8 @@ class TestByRwTaskResourceAuth(ResourceTestCase):
         self.user2_email = u"test2@test.ts"
         self.user2_pass = u"test"
 
-        self.list_url = u"/api/v1/byrwtask/"
-        self.details_url = u"/api/v1/byrwtask/%d/"
+        self.list_url = u"/v1/byrwtask/"
+        self.details_url = u"/v1/byrwtask/%d/"
 
         self.superuser = TrackTrainsUser.objects.create_superuser(
             self.super_user_email,
@@ -225,7 +225,7 @@ class TestByRwTaskResourceAuth(ResourceTestCase):
                 "departure_date": date.today(),
                 "car": 1,
                 "seat": "T",
-                "owner": "/api/v1/user/%d/" % (self.user2.pk,)
+                "owner": "/v1/user/%d/" % (self.user2.pk,)
             }
 
         self.post_data2 = {
@@ -235,7 +235,7 @@ class TestByRwTaskResourceAuth(ResourceTestCase):
                 "departure_date": date.today(),
                 "car": 1,
                 "seat": "T",
-                "owner": "/api/v1/user/%d/" % (self.user2.pk,)
+                "owner": "/v1/user/%d/" % (self.user2.pk,)
             }
 
     def auth(self, usernum=1):
@@ -255,7 +255,7 @@ class TestByRwTaskResourceAuth(ResourceTestCase):
                 'password': self.user2_pass
             }
 
-        self.login_url = u'/api/v1/user/login/'
+        self.login_url = u'/v1/user/login/'
 
         self.api_client.post(
             self.login_url,

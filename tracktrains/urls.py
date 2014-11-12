@@ -13,6 +13,6 @@ v1_api.register(TrackTrainsUserResource())
 v1_api.register(ByRwTaskResource())
 
 urlpatterns = patterns('',
-    url('^api/', include(v1_api.urls)),
     url(r'^admin/', include(admin.site.urls)),
+    url(r'', include(v1_api.urls))
 )

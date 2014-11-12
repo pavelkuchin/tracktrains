@@ -21,10 +21,10 @@ class TestTrackTrainsUserResource(ResourceTestCase):
         self.userwi_email = u"testwi@test.ts"
         self.userwi_pass = u"test"
 
-        self.list_url = u"/api/v1/user/"
-        self.details_url = u"/api/v1/user/%d/"
-        self.invite_url = u"/api/v1/user/invite/%s/"
-        self.signup_url = u"/api/v1/user/signup/%s/"
+        self.list_url = u"/v1/user/"
+        self.details_url = u"/v1/user/%d/"
+        self.invite_url = u"/v1/user/invite/%s/"
+        self.signup_url = u"/v1/user/signup/%s/"
 
         self.superuser = TrackTrainsUser.objects.create_superuser(
             self.super_user_email,
@@ -57,7 +57,7 @@ class TestTrackTrainsUserResource(ResourceTestCase):
                 'password': self.user_pass
             }
 
-        login_url = u'/api/v1/user/login/'
+        login_url = u'/v1/user/login/'
 
         self.api_client.post(
             login_url,
@@ -299,7 +299,7 @@ class TestTrackTrainsUserResource(ResourceTestCase):
             'password': self.user_pass
         }
 
-        login_url = u'/api/v1/user/login/'
+        login_url = u'/v1/user/login/'
 
         resp = self.deserialize(self.api_client.post(
             login_url,
@@ -315,7 +315,7 @@ class TestTrackTrainsUserResource(ResourceTestCase):
             'again': self.user_pass
         }
 
-        login_url = u'/api/v1/user/login/'
+        login_url = u'/v1/user/login/'
 
         resp = self.api_client.post(
             login_url,
@@ -331,7 +331,7 @@ class TestTrackTrainsUserResource(ResourceTestCase):
             'password': "wrong password"
         }
 
-        login_url = u'/api/v1/user/login/'
+        login_url = u'/v1/user/login/'
 
         resp = self.api_client.post(
             login_url,
@@ -347,7 +347,7 @@ class TestTrackTrainsUserResource(ResourceTestCase):
             'password': self.user_pass
         }
 
-        login_url = u'/api/v1/user/login/'
+        login_url = u'/v1/user/login/'
 
         self.user.is_active = False
         self.user.save()
@@ -366,8 +366,8 @@ class TestTrackTrainsUserResource(ResourceTestCase):
             'password': self.user_pass
         }
 
-        login_url = u'/api/v1/user/login/'
-        logout_url = u'/api/v1/user/logout/'
+        login_url = u'/v1/user/login/'
+        logout_url = u'/v1/user/logout/'
 
         self.api_client.post(
             login_url,
