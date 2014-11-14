@@ -126,12 +126,16 @@ class Command(BaseCommand):
                                 found_seat = self.__looking4seat(details, i.car, i.seat)
 
                 if found_train and found_car and found_seat:
-                    i.is_successful = True
-                    send_byrw_notification_email(True, i)
+                    if not i.is_successful
+                        send_byrw_notification_email(True, i)
+                        i.is_successful = True
+                        self.log.info('Success notification has been sent')
                     self.log.info('Required train has been found')
                 else:
                     if i.is_successful:
                         send_byrw_notification_email(False, i)
+                        self.log.info('Seat lose notification has been sent')
                     i.is_successful = False
+                    self.log.info('Required train has not been found')
 
                 i.save()
