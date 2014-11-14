@@ -42,6 +42,9 @@ class GatewayByRw():
     def __enter__(self):
         return self
 
+    def __exit__(self, type, value, traceback):
+        self.session.close()
+
     def __request_initial(self):
         """
             The initial request for the main page
@@ -251,6 +254,3 @@ class GatewayByRw():
         self.response_trains = self.__request_back(details)
 
         return result
-
-    def __exit__(self, type, value, traceback):
-        self.session.close()

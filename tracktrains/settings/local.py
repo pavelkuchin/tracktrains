@@ -38,8 +38,7 @@ LOGGING = {
         },
         'django': {
             'level': 'DEBUG',
-            'handlers': ['file'],
-            'propagate': False,
+            'propagate': True,
         }
     }
 }

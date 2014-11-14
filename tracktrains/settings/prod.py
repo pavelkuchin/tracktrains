@@ -28,7 +28,7 @@ LOGGING = {
     },
     'handlers': {
         'file': {
-            'level': 'WARNING',
+            'level': get_env_var('LOG_LEVEL'),
             'class': 'logging.handlers.RotatingFileHandler',
             'filename': get_env_var('APP_ROOT') + '/logs/tracktrains.log',
             'maxBytes': 1024*1024*5, # 5 MB
@@ -38,13 +38,12 @@ LOGGING = {
     },
     'loggers': {
         '': {
-            'level': 'WARNING',
+            'level': get_env_var('LOG_LEVEL'),
             'handlers': ['file']
         },
         'django': {
-            'level': 'WARNING',
-            'handlers': ['file'],
-            'propagate': False,
+            'level': get_env_var('LOG_LEVEL'),
+            'propagate': True,
         }
     }
 }
