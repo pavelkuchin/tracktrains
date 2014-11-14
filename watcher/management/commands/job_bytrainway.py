@@ -125,7 +125,6 @@ class Command(BaseCommand):
                                 )
                                 found_seat = self.__looking4seat(details, i.car, i.seat)
 
-
                 if found_train and found_car and found_seat:
                     i.is_successful = True
                     send_byrw_notification_email(True, i)

@@ -25,7 +25,9 @@ def send_invitation_email(from_addr, to_addr, signed_invitation):
     }
     c = Context(payload)
 
-    msg = EmailMultiAlternatives(subject, text_content.render(c), from_addr, [to_addr])
+    msg = EmailMultiAlternatives(subject, text_content.render(c),
+        "inviter@%s" % settings.HOST, 
+        [to_addr])
     msg.attach_alternative(html_content.render(c), "text/html")
     msg.send()
 
@@ -68,7 +70,7 @@ def send_byrw_notification_email(found, task):
     msg = EmailMultiAlternatives(
         subject,
         text_content.render(c),
-        "notify@%s" % settings.HOST,
+        "tracker@%s" % settings.HOST,
         [task.owner.email])
 
     msg.attach_alternative(html_content.render(c), "text/html")
