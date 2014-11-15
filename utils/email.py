@@ -41,13 +41,12 @@ def send_byrw_notification_email(found, task):
         @param task instance of the ByRwTask model
     """
     action = found and "found" or "bought"
-    sign = found and "+" or "-"
 
     if len(task.train):
-        subject = "[Task %d](%s) The seat on train %s has been %s"\
-            % (task.id, sign, task.train, action)
+        subject = "The seat on train %s has been %s"\
+            % (task.train, action)
     else:
-        subject = "[Task %d](%s) The seat has been %s" % (task.id, sign, action)
+        subject = "The seat has been %s" % (action)
 
     text_content = loader.get_template('emails/watcher/notification.txt')
     html_content = loader.get_template('emails/watcher/notification.html')
