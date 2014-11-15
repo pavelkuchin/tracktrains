@@ -63,8 +63,8 @@ class EmailSendersTest(TestCase):
 
         msg = mail.outbox[0]
 
-        self.assertTrue("(+)" in msg.subject)
-        self.assertTrue(unicode(self.task.pk) in msg.subject)
+        self.assertTrue("found" in msg.subject)
+        self.assertTrue(unicode(self.task.pk) in msg.body)
 
         cars = dict(ByRwTask.CAR_CHOISES)
         seats = dict(ByRwTask.SEAT_CHOISES)
@@ -83,4 +83,4 @@ class EmailSendersTest(TestCase):
         self.assertEqual(len(mail.outbox), 2)
 
         msg = mail.outbox[1]
-        self.assertTrue("(-)" in msg.subject)
+        self.assertTrue("bought" in msg.subject)
