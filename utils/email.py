@@ -26,7 +26,7 @@ def send_invitation_email(from_addr, to_addr, signed_invitation):
     c = Context(payload)
 
     msg = EmailMultiAlternatives(subject, text_content.render(c),
-        "inviter@%s" % settings.HOST, 
+        "inviter@%s" % settings.HOST,
         [to_addr])
     msg.attach_alternative(html_content.render(c), "text/html")
     msg.send()
@@ -56,6 +56,7 @@ def send_byrw_notification_email(found, task):
     seats = dict(ByRwTask.SEAT_CHOISES)
 
     data = {
+        "task_id": task.id,
         "departure_date": task.departure_date,
         "departure_point": task.departure_point,
         "destination_point": task.destination_point,
