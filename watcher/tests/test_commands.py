@@ -29,7 +29,7 @@ class JobByRwTrainwayTest(TestCase):
         exp_task.departure_point = "ГОМЕЛЬ"
         exp_task.destination_point = "МИНСК"
         exp_task.departure_date = datetime.datetime.now()\
-            - datetime.timedelta(days=1)
+            - datetime.timedelta(days=2)
         exp_task.save()
 
         self.assertEquals(ByRwTask.objects.count(), 1)
