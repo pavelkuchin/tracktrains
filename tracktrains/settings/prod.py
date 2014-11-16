@@ -31,7 +31,7 @@ LOGGING = {
             'level': get_env_var('LOG_LEVEL'),
             'class': 'logging.handlers.RotatingFileHandler',
             'filename': get_env_var('APP_ROOT') + '/logs/tracktrains.log',
-            'maxBytes': 1024*1024*5, # 5 MB
+            'maxBytes': 1024*1024*1, # 1 MB
             'backupCount': 5,
             'formatter': 'basic'
         },
