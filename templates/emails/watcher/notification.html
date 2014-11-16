@@ -1,36 +1,20 @@
 <html>
     <body>
         <script type="application/ld+json">
-            { "@context" : "http://schema.org",
-              "@type" : "TrainReservation",
-              "reservationNumber" : "{{task_id}}",
+            { "@type" : "TrainReservation",
+              "reservationStatus": "http://schema.org/Confirmed",
+              "reservationNumber" : "3",
               "reservationFor" : {
                   "@type" : "TrainTrip",
-                  "trainCode" : "{{ train }}",
-                  "departureTrainStation" : {
-                      "@type" : "TrainStation",
-                      "name" : "{{ departure_point }}"
-                  },
-                  "departureTime" : "{{ departure_date }}",
-                  "arrivalTrainStation" : {
-                      "@type" : "TrainStation",
-                      "name" : "{{ destination_point }}"
-                  }
+                  "trainNumber" : "{{ train }}",
+                  "departureStation" : "{{ departure_point }}",
+                  "departureTime" : "{{ departure_date }} 00:00:00",
+                  "arrivalTime": "{{ departure_date }} 00:00:00",
+                  "arrivalStation" : "{{ destination_point }}"
                },
                "checkinUrl" : "http://trackseats.info/",
-               "reservedTicket" : {
-                   "@type" : "Ticket",
-                   "ticketedSeat" : [
-                        {
-                            "@type" : "Seat",
-                            "seatingType" : "{{ car }}"
-                        }, {
-                            "@type" : "Seat",
-                            "seatingType" : "{{ seat }}"
-                        }
-                    ]
-                }
-            }
+               "modifyReservationUrl": "http://trackseats.info/"
+             }
         </script>
         <h1>Task #{{task_id}}</h1>
         <h2>The seat has been {{ action }} on {{ departure_date }},
