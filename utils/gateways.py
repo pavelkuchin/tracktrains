@@ -128,20 +128,20 @@ class GatewayByRw():
             @param response_details - result of the request_details page
             @return The same page as request_trains
         """
-        #self.stdout.write("Return back")
 
         soup = BeautifulSoup(response_details.text, "lxml")
 
         action = soup.find('form', id='%s:form1' % self.NAMESPACE)['action']
         view_id = soup.select('#com.sun.faces.VIEW')[0]['value']
         url = self.URL_BASE + action
+        button_id = soup.find('input', value='Назад')['name'].split(':')[-1]
 
         data = {
             'com.sun.faces.VIEW': view_id,
             '%s:form1:Places' % self.NAMESPACE: '',
             '%s:form1:link' % self.NAMESPACE: '',
             '%s:form1:hidePlaces' % self.NAMESPACE: '0',
-            '%s:form1:_id142' % self.NAMESPACE: u'Назад',
+            '%s:form1:%s' % (self.NAMESPACE, button_id): u'Назад',
             '%s:form1' % self.NAMESPACE: '%s:form1' % self.NAMESPACE,
         }
 
