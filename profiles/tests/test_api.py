@@ -25,6 +25,7 @@ class TestTrackTrainsUserResource(ResourceTestCase):
         self.details_url = u"/v1/user/%d/"
         self.invite_url = u"/v1/user/invite/%s/"
         self.signup_url = u"/v1/user/signup/%s/"
+        self.session_url = u"/v1/user/session/"
 
         self.superuser = TrackTrainsUser.objects.create_superuser(
             self.super_user_email,
@@ -398,3 +399,35 @@ class TestTrackTrainsUserResource(ResourceTestCase):
         # We cannot get details when logged out
         self.assertHttpUnauthorized(
             self.api_client.get(self.details_url, format='json'))
+
+    def test_session(self):
+        auth_data = {
+            'login': self.user_email,
+            'password': self.user_pass
+        }
+
+        login_url = u'/v1/user/login/'
+
+        self.api_client.post(
+            login_url,
+            data=auth_data
+        )
+
+        resp = self.api_client.get(
+            self.session_url,
+            format='json'
+        )
+
+        self.assertValidJSONResponse(resp)
+
+        self.assertKeys(self.deserialize(resp),
+            [u'email', u'inviter', u'invites_counter', \
+            u'is_active', u'is_staff', u'resource_uri'])
+        self.assertEqual(self.deserialize(resp)['email'], self.user_email)
+
+    def test_session_unauthorized(self):
+        resp = self.api_client.get(
+            self.session_url,
+            format='json'
+        )
+        self.assertHttpUnauthorized(resp)

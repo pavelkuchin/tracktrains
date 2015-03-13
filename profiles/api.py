@@ -47,7 +47,11 @@ class TrackTrainsUserResource(ModelResource):
             url(r"(?P<resource_name>%s)/logout%s$"
                     % (self._meta.resource_name, trailing_slash()),
                 self.wrap_view("api_logout"),
-                name="api_logout")
+                name="api_logout"),
+            url(r"(?P<resource_name>%s)/session%s$"
+                    % (self._meta.resource_name, trailing_slash()),
+                self.wrap_view("api_session"),
+                name="api_session")
         ]
 
     def api_login(self, request, **kwargs):
@@ -135,7 +139,7 @@ class TrackTrainsUserResource(ModelResource):
     def api_invite(self, request, **kwargs):
         self.method_check(request, allowed=['post'])
         self.is_authenticated(request)
-        self.throttle_check(request)
+#        self.throttle_check(request)
 
         if request.user.invites_counter > 0:
             invitation = {
@@ -154,5 +158,16 @@ class TrackTrainsUserResource(ModelResource):
             msg = "User can't send more invitations. Limit has came."
             raise ImmediateHttpResponse(HttpForbidden(msg))
 
-        self.log_throttled_access(request)
+#        self.log_throttled_access(request)
         return self.create_response(request, result)
+
+    def api_session(self, request, **kwargs):
+        self.method_check(request, allowed=['get'])
+        self.is_authenticated(request)
+#        self.throttle_check(request)
+
+        bundle = self.build_bundle(obj=request.user, request=request)
+        bundle = self.full_dehydrate(bundle)
+
+#        self.log_throttled_access(request)
+        return self.create_response(request, bundle)

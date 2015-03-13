@@ -69,7 +69,7 @@ class EmailSendersTest(TestCase):
         cars = dict(ByRwTask.CAR_CHOISES)
         seats = dict(ByRwTask.SEAT_CHOISES)
 
-        str_date_now = self.date_now.strftime("%b. %d, %Y").replace(' 0', ' ')
+        str_date_now = self.date_now.strftime("%B %d, %Y").replace(' 0', ' ')
         self.assertTrue(unicode(str_date_now) in msg.body)
         self.assertTrue(unicode(self.task.departure_point) in msg.body)
         self.assertTrue(unicode(self.task.destination_point) in msg.body)
