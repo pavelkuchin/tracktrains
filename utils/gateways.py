@@ -22,12 +22,12 @@ class GatewayByRw():
     NAMESPACE = settings.BYRW_NAMESPACE
 
     CAR_TYPE = [
-        ('VIP',r'%s:form2:tableEx1:\d:text25' % NAMESPACE),
-        ('SLE',r'%s:form2:tableEx1:\d:text24' % NAMESPACE),
-        ('COM',r'%s:form2:tableEx1:\d:text23' % NAMESPACE),
-        ('RB', r'%s:form2:tableEx1:\d:text22' % NAMESPACE),
-        ('RS', r'%s:form2:tableEx1:\d:text21' % NAMESPACE),
-        ('TC', r'%s:form2:tableEx1:\d:text20' % NAMESPACE)
+        ('VIP',r'%s:form2:tableEx1:\d+:text25' % NAMESPACE),
+        ('SLE',r'%s:form2:tableEx1:\d+:text24' % NAMESPACE),
+        ('COM',r'%s:form2:tableEx1:\d+:text23' % NAMESPACE),
+        ('RB', r'%s:form2:tableEx1:\d+:text22' % NAMESPACE),
+        ('RS', r'%s:form2:tableEx1:\d+:text21' % NAMESPACE),
+        ('TC', r'%s:form2:tableEx1:\d+:text20' % NAMESPACE)
     ]
 
     HEADERS = {

@@ -1,5 +1,6 @@
 import logging
 
+from django.utils import translation
 from django.utils import timezone
 from django.core.management.base import BaseCommand
 
@@ -37,6 +38,8 @@ class Command(BaseCommand):
         return result
 
     def handle(self, *args, **options):
+        translation.activate("en")
+
         self.log.info('Processing...')
 
         tasks = ByRwTask.objects.filter(is_active=True).order_by(
