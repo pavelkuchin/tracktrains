@@ -2,6 +2,7 @@
 import re
 import requests
 import datetime
+import json
 
 from bs4 import BeautifulSoup
 
@@ -19,6 +20,7 @@ class GatewayByRw():
 
     URL_BASE = settings.BYRW_BASE_URL
     URL_SCHEDULE = settings.BYRW_DATA_URL
+    URL_CITIES = settings.BYRW_CITIES_URL
     NAMESPACE = settings.BYRW_NAMESPACE
 
     CAR_TYPE = [
@@ -50,7 +52,7 @@ class GatewayByRw():
             The initial request for the main page
         """
         return self.session.get(
-            self.URL_BASE + self.URL_SCHEDULE,
+            self.URL_BASE + self.URL_SCHEDULE + "?lang=en",
             headers=self.HEADERS
         )
 
@@ -78,12 +80,12 @@ class GatewayByRw():
         data = {
             'com.sun.faces.VIEW': view_id,
             '%s:form1' % self.NAMESPACE: '%s:form1' % self.NAMESPACE,
-            '%s:form1:buttonSearch' % self.NAMESPACE: 'Продолжить',
+            '%s:form1:buttonSearch' % self.NAMESPACE: 'Continue',
             '%s:form1:dob' % self.NAMESPACE: str_departure_date,
             '%s:form1:intEndTime' % self.NAMESPACE: '23',
             '%s:form1:intStartTime' % self.NAMESPACE: '0',
             '%s:form1:keyErr' % self.NAMESPACE: '',
-            '%s:form1:language1' % self.NAMESPACE: 'ru',
+            '%s:form1:language1' % self.NAMESPACE: 'en',
             '%s:form1:maxDate' % self.NAMESPACE: str_max_date,
             '%s:form1:maxP' % self.NAMESPACE: '4',
             '%s:form1:minDate' % self.NAMESPACE: str_departure_date,
@@ -113,7 +115,7 @@ class GatewayByRw():
             'com.sun.faces.VIEW': view_id,
             'rowSelect1': details_id,
             '%s:form2' % self.NAMESPACE: '%s:form2' % self.NAMESPACE,
-            '%s:form2:button2' % self.NAMESPACE: u'Продолжить',
+            '%s:form2:button2' % self.NAMESPACE: u'Continue',
             '%s:form2:sessionId' % self.NAMESPACE: session_id
         }
 
@@ -134,14 +136,14 @@ class GatewayByRw():
         action = soup.find('form', id='%s:form1' % self.NAMESPACE)['action']
         view_id = soup.select('#com.sun.faces.VIEW')[0]['value']
         url = self.URL_BASE + action
-        button_id = soup.find('input', value='Назад')['name'].split(':')[-1]
+        button_id = soup.find('input', value='Back')['name'].split(':')[-1]
 
         data = {
             'com.sun.faces.VIEW': view_id,
             '%s:form1:Places' % self.NAMESPACE: '',
             '%s:form1:link' % self.NAMESPACE: '',
             '%s:form1:hidePlaces' % self.NAMESPACE: '0',
-            '%s:form1:%s' % (self.NAMESPACE, button_id): u'Назад',
+            '%s:form1:%s' % (self.NAMESPACE, button_id): u'Back',
             '%s:form1' % self.NAMESPACE: '%s:form1' % self.NAMESPACE,
         }
 
@@ -253,4 +255,75 @@ class GatewayByRw():
 
         self.response_trains = self.__request_back(details)
 
+        return result
+
+    def find_station(self, city):
+        """
+            Retrive station name and code based on city name
+            @param city - a city name or just several letters
+            @return the stations (names and codes)
+                [
+                    {
+                        'code': u'2100270',
+                        'name': u'ASIPOVIČY 1',
+                        'full_name': u'ASIPOVIČY 1, BELARUS'
+                    },
+                    {
+                        'code': u'2100107',
+                        'name': u'ALIACHNOVIČY',
+                        'full_name': u'ALIACHNOVIČY, BELARUS'
+                    },
+                    {
+                        'code': u'2100085',
+                        'name': u'ARANČYCY',
+                        'full_name': u'ARANČYCY, BELARUS'
+                    }
+                ]
+
+        """
+
+        raw_result = self.session.get(
+            "%s%s?term=%s&type=STATION&lang=en&onlySchedule=1"
+                % (self.URL_BASE, self.URL_CITIES, city),
+            headers=self.HEADERS,
+            stream=True
+        )
+
+        raw_result.encoding = 'utf8'
+
+        dict_result = json.loads(raw_result.text)
+
+        return self.__process_cities(dict_result)
+
+    def __process_cities(self, dict_result):
+        """
+            Convert raw dict to required list of dicts
+            @param dict_result - raw dict like:
+                    {
+                      u'query': u'MINSK',
+                      u'code': [u'2100000', u'2100001'],
+                      u'data': [u'MINSK', u'MINSK PASAŽYRSKI'],
+                      u'full': [u'MINSK, BELARUS', u'MINSK PASAŽYRSKI, BELARUS']
+                    }
+            @return list of dicts like
+                    [
+                        {
+                            'code': u'2100000',
+                            'name': u'MINSK',
+                            'full_name': u'MINSK, BELARUS'
+                        },
+                        {
+                            'code': u'2100001',
+                            'name': u'MINSK PASAŽYRSKI',
+                            'full_name': u'MINSK PASAŽYRSKI, BELARUS'
+                        }
+                    ]
+        """
+        result = []
+        for idx, val in enumerate(dict_result["code"]):
+            result.append({
+                "name": dict_result["data"][idx],
+                "full_name": dict_result["full"][idx],
+                "code": val
+            })
         return result

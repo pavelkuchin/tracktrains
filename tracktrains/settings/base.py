@@ -120,3 +120,4 @@ SIGNUP_PAGE = "signup"
 BYRW_BASE_URL = get_env_var('BYRW_BASE_URL')
 BYRW_DATA_URL = get_env_var('BYRW_DATA_URL')
 BYRW_NAMESPACE = get_env_var('BYRW_NAMESPACE')
+BYRW_CITIES_URL = get_env_var('BYRW_CITIES_URL')

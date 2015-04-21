@@ -26,8 +26,8 @@ class JobByRwTrainwayTest(TestCase):
 
         exp_task = ByRwTask()
         exp_task.owner = self.user
-        exp_task.departure_point = "ГОМЕЛЬ"
-        exp_task.destination_point = "МИНСК"
+        exp_task.departure_point = "HOMIEĹ PASAŽYRSKI"
+        exp_task.destination_point = "MINSK"
         exp_task.departure_date = datetime.datetime.now()\
             - datetime.timedelta(days=2)
         exp_task.save()
@@ -48,8 +48,8 @@ class JobByRwTrainwayTest(TestCase):
 
         task = ByRwTask()
         task.owner = self.user
-        task.departure_point = "ГОМЕЛЬ"
-        task.destination_point = "МИНСК"
+        task.departure_point = "HOMIEĹ PASAŽYRSKI"
+        task.destination_point = "MINSK"
         task.departure_date = datetime.datetime.now()\
             + datetime.timedelta(days=20)
         task.save()
@@ -73,8 +73,8 @@ class JobByRwTrainwayTest(TestCase):
 
         task = ByRwTask()
         task.owner = self.user
-        task.departure_point = "ГОМЕЛЬ"
-        task.destination_point = "МИНСК"
+        task.departure_point = "HOMIEĹ PASAŽYRSKI"
+        task.destination_point = "MINSK"
         task.train = "631Б"
         task.departure_date = datetime.datetime.now()\
             + datetime.timedelta(days=20)
@@ -99,8 +99,8 @@ class JobByRwTrainwayTest(TestCase):
 
         task = ByRwTask()
         task.owner = self.user
-        task.departure_point = "ГОМЕЛЬ"
-        task.destination_point = "МИНСК"
+        task.departure_point = "HOMIEĹ PASAŽYRSKI"
+        task.destination_point = "MINSK"
         task.train = "631Б"
         task.car = "RB"
         task.departure_date = datetime.datetime.now()\
@@ -126,8 +126,8 @@ class JobByRwTrainwayTest(TestCase):
 
         task = ByRwTask()
         task.owner = self.user
-        task.departure_point = "ГОМЕЛЬ"
-        task.destination_point = "МИНСК"
+        task.departure_point = "HOMIEĹ PASAŽYRSKI"
+        task.destination_point = "MINSK"
         task.train = "631Б"
         task.car = "RB"
         task.seat = "TS"
@@ -153,8 +153,8 @@ class JobByRwTrainwayTest(TestCase):
 
         task = ByRwTask()
         task.owner = self.user
-        task.departure_point = "ГОМЕЛЬ"
-        task.destination_point = "МИНСК"
+        task.departure_point = "HOMIEĹ PASAŽYRSKI"
+        task.destination_point = "MINSK"
         task.seat = "TS"
         task.departure_date = datetime.datetime.now()\
             + datetime.timedelta(days=20)
@@ -178,8 +178,8 @@ class JobByRwTrainwayTest(TestCase):
 
         task = ByRwTask()
         task.owner = self.user
-        task.departure_point = "ГОМЕЛЬ"
-        task.destination_point = "МИНСК"
+        task.departure_point = "HOMIEĹ PASAŽYRSKI"
+        task.destination_point = "MINSK"
         task.car = "RB"
         task.departure_date = datetime.datetime.now()\
             + datetime.timedelta(days=20)
@@ -203,8 +203,8 @@ class JobByRwTrainwayTest(TestCase):
 
         task = ByRwTask()
         task.owner = self.user
-        task.departure_point = "ГОМЕЛЬ"
-        task.destination_point = "МИНСК"
+        task.departure_point = "HOMIEĹ PASAŽYRSKI"
+        task.destination_point = "MINSK"
         task.is_active = False
         task.departure_date = datetime.datetime.now()\
             + datetime.timedelta(days=20)

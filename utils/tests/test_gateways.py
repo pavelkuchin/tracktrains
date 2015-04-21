@@ -5,6 +5,7 @@ from django.test import TestCase
 
 from utils.gateways import GatewayByRw
 
+import string
 
 class GatewaysTest(TestCase):
     """
@@ -13,8 +14,8 @@ class GatewaysTest(TestCase):
     """
     def test_gatewaybyrw(self):
         with GatewayByRw() as gw:
-            departure_point = "ГОМЕЛЬ"
-            destination_point = "МИНСК"
+            departure_point = "HOMIEĹ PASAŽYRSKI"
+            destination_point = "MINSK"
             departure_date = datetime.datetime.now() + datetime.timedelta(days=5)
             trains = gw.get_trains(
                 departure_point,
@@ -33,3 +34,17 @@ class GatewaysTest(TestCase):
 
                 self.assertIsNotNone(details)
                 self.assertNotEqual(details, 0)
+
+    def test_get_station(self):
+        with GatewayByRw() as gw:
+            result = gw.find_station("MINSK")
+
+            self.assertEqual(result[0]['code'], u"2100000")
+            self.assertEqual(result[0]['name'], u"MINSK")
+            self.assertEqual(result[0]['full_name'], u"MINSK, BELARUS")
+
+            result = gw.find_station("HOMIEĹ")
+
+            self.assertEqual(result[0]['code'], u"2100100")
+            self.assertEqual(result[0]['name'], u"HOMIEĹ PASAŽYRSKI")
+            self.assertEqual(result[0]['full_name'], u"HOMIEĹ PASAŽYRSKI, BELARUS")
