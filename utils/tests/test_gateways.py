@@ -5,7 +5,6 @@ from django.test import TestCase
 
 from utils.gateways import GatewayByRw
 
-import string
 
 class GatewaysTest(TestCase):
     """
