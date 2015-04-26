@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 import datetime
 
 from django.core.management import call_command
@@ -14,6 +15,8 @@ class JobByRwTrainwayTest(TestCase):
     !!! Caution, tests can be unstable because 3th party resource is involved
     """
     def setUp(self):
+        super(JobByRwTrainwayTest, self).setUp()
+
         TrackTrainsUser.objects.create_superuser(
             "admin@test.ts",
             "password")

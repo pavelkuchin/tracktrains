@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from datetime import date
 
 from tastypie.test import ResourceTestCase
@@ -96,7 +98,9 @@ class TestByRwTaskResource(ResourceTestCase):
 
         self.assertValidJSONResponse(resp)
 
-        self.assertKeys(self.deserialize(resp),
+        data = self.deserialize(resp)
+
+        self.assertKeys(data,
             [
                 u"train",
                 u"destination_point",
@@ -115,7 +119,7 @@ class TestByRwTaskResource(ResourceTestCase):
             ]
         )
 
-        self.assertEqual(self.deserialize(resp)['train'], self.task1.train)
+        self.assertEqual(data['train'], self.task1.train)
 
     def test_post_list_unauthorized(self):
         self.assertHttpUnauthorized(self.api_client.post(
@@ -359,3 +363,107 @@ class TestByRwTaskResourceAuth(ResourceTestCase):
         new_count = ByRwTask.objects.count()
 
         self.assertEqual(old_count, new_count+1)
+
+class TestByRwGatewayResource(ResourceTestCase):
+    def setUp(self):
+        super(TestByRwGatewayResource, self).setUp()
+
+        self.super_user_email = u"supertest@test.ts"
+        self.super_user_pass = u"test"
+
+        self.user_email = u"test@test.ts"
+        self.user_pass = u"test"
+
+        self.url = u"/v1/byrwgateway/station/%s/"
+
+        self.superuser = TrackTrainsUser.objects.create_superuser(
+            self.super_user_email,
+            self.super_user_pass)
+
+        self.user = TrackTrainsUser.objects.\
+            create_user(self.user_email, self.super_user_email, self.user_pass)
+
+    def auth(self):
+        auth_data = {
+            'login': self.user_email,
+            'password': self.user_pass
+        }
+
+        login_url = u'/v1/user/login/'
+
+        self.api_client.post(
+            login_url,
+            data=auth_data
+        )
+
+    def test_station_unauthenticated(self):
+        resp = self.api_client.get(
+            self.url % 'A'
+        )
+
+        self.assertHttpUnauthorized(resp)
+
+    def test_station_minsk(self):
+        self.auth()
+
+        resp = self.api_client.get(
+            self.url % u'MINSK'
+        )
+
+        self.assertValidJSONResponse(resp)
+
+        stations = self.deserialize(resp)
+
+        self.assertEqual(stations[0]['name'], u'MINSK')
+
+    def test_station_gomel(self):
+        self.auth()
+
+        resp = self.api_client.get(
+            self.url % u'HOMIEĹ PASAŽYRSKI'
+        )
+
+        self.assertValidJSONResponse(resp)
+
+        stations = self.deserialize(resp)
+
+        self.assertEqual(stations[0]['name'], u'HOMIEĹ PASAŽYRSKI')
+
+    def test_station_vitebsk(self):
+        self.auth()
+
+        resp = self.api_client.get(
+            self.url % u'VICIEBSK PASAŽYRSKI'
+        )
+
+        self.assertValidJSONResponse(resp)
+
+        stations = self.deserialize(resp)
+
+        self.assertEqual(stations[0]['name'], u'VICIEBSK PASAŽYRSKI')
+
+    def test_station_magilev(self):
+        self.auth()
+
+        resp = self.api_client.get(
+            self.url % u'MAHILIOŬ 1'
+        )
+
+        self.assertValidJSONResponse(resp)
+
+        stations = self.deserialize(resp)
+
+        self.assertEqual(stations[0]['name'], u'MAHILIOŬ 1')
+
+    def test_station_brest(self):
+        self.auth()
+
+        resp = self.api_client.get(
+            self.url % u'BREST'
+        )
+
+        self.assertValidJSONResponse(resp)
+
+        stations = self.deserialize(resp)
+
+        self.assertEqual(stations[0]['name'], u'BREST')
