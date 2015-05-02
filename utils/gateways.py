@@ -37,6 +37,11 @@ class GatewayByRw():
         'From': 'webmaster@%s' % settings.HOST
     }
 
+    REQUEST_TYPE = {
+        'VACANT': '2',
+        'ALL': '1'
+    }
+
     def __init__(self):
         self.session = requests.Session()
         self.response_trains = None
@@ -57,7 +62,7 @@ class GatewayByRw():
         )
 
     def __request_trains(self, response_initial, departure_point,
-            destination_point, departure_date):
+            destination_point, departure_date, type=REQUEST_TYPE['VACANT']):
         """
             The request for trains list
             @param response_initial - result of the self.request_initial()
@@ -293,9 +298,9 @@ class GatewayByRw():
 
         dict_result = json.loads(raw_result.text)
 
-        return self.__process_cities(dict_result)
+        return self.__process_stations(dict_result)
 
-    def __process_cities(self, dict_result):
+    def __process_stations(self, dict_result):
         """
             Convert raw dict to required list of dicts
             @param dict_result - raw dict like:
@@ -327,3 +332,61 @@ class GatewayByRw():
                 "code": val
             })
         return result
+
+    def find_train(self, date, departure_point, destination_point, query):
+        """
+            Retrieve trains for the date from the departure point
+            to the destination point with search by the query.
+            @param date - the Python date object with requred departure date
+            @param departure_point - the departure station name
+            @param destiantion_point - the destination station name
+            @param query - the target search query
+            @return the trains list (names and codes)
+                [
+                    {
+                        'code': '669Б',
+                        'full_name': '669Б HOMIEĹ PASAŽYRSKI - MINSK PASAŽYRSKI'
+                    },
+                    {
+                        'code': '647Б',
+                        'full_name': '647Б HOMIEĹ PASAŽYRSKI - MINSK PASAŽYRSKI'
+                    },
+                    {
+                        'code': '707Б',
+                        'full_name': '707Б HOMIEĹ PASAŽYRSKI - MINSK PASAŽYRSKI'
+                    },
+                    {
+                        'code': '631Б',
+                        'full_name': '631Б HOMIEĹ PASAŽYRSKI - HRODNA'
+                    },
+                    {
+                        'code': '615Б',
+                        'full_name': '615Б HOMIEĹ PASAŽYRSKI - MINSK PASAŽYRSKI'
+                    },
+                    {
+                        'code': '621Б',
+                        'full_name': '621Б HOMIEĹ PASAŽYRSKI - MINSK PASAŽYRSKI'
+                    }
+                ]
+
+        """
+
+        init = self.__request_initial()
+        response_trains = self.__request_trains(
+            init, departure_point, destination_point, date,
+            self.REQUEST_TYPE['ALL'])
+
+        soup = BeautifulSoup(response_trains.text, "lxml")
+        table = soup.find('table',id='%s:form2:tableEx1' % self.NAMESPACE)
+        if not table:
+            return {}
+        rows = table.find_all("tr", class_=["rowClass1","grey"])
+
+        trains = []
+
+        for r in rows:
+            t = r.find('span', style="white-space:nowrap").text
+            if query in t:
+                trains.append({u'code': t.split(" ")[0], u'full_name': t})
+
+        return trains

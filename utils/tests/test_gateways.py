@@ -34,7 +34,7 @@ class GatewaysTest(TestCase):
                 self.assertIsNotNone(details)
                 self.assertNotEqual(details, 0)
 
-    def test_get_station(self):
+    def test_find_station(self):
         with GatewayByRw() as gw:
             result = gw.find_station("MINSK")
 
@@ -47,3 +47,13 @@ class GatewaysTest(TestCase):
             self.assertEqual(result[0]['code'], u"2100100")
             self.assertEqual(result[0]['name'], u"HOMIEĹ PASAŽYRSKI")
             self.assertEqual(result[0]['full_name'], u"HOMIEĹ PASAŽYRSKI, BELARUS")
+
+    def test_find_train(self):
+        with GatewayByRw() as gw:
+            departure_point = "HOMIEĹ PASAŽYRSKI"
+            destination_point = "MINSK"
+            date = datetime.datetime.now() + datetime.timedelta(days=5)
+
+            result = gw.find_train(date, departure_point, destination_point, u"HOMIEĹ")
+
+        self.assertTrue(u"HOMIEĹ" in result[0]['full_name'])

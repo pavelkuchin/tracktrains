@@ -374,7 +374,9 @@ class TestByRwGatewayResource(ResourceTestCase):
         self.user_email = u"test@test.ts"
         self.user_pass = u"test"
 
-        self.url = u"/v1/byrwgateway/station/%s/"
+        self.station_url = u"/v1/byrwgateway/station/%s/"
+        self.train_url = (u"/v1/byrwgateway/train/?date=%s&departure_point=%s"
+                           "&destination_point=%s&query=%s")
 
         self.superuser = TrackTrainsUser.objects.create_superuser(
             self.super_user_email,
@@ -398,7 +400,7 @@ class TestByRwGatewayResource(ResourceTestCase):
 
     def test_station_unauthenticated(self):
         resp = self.api_client.get(
-            self.url % 'A'
+            self.station_url % 'A'
         )
 
         self.assertHttpUnauthorized(resp)
@@ -407,7 +409,7 @@ class TestByRwGatewayResource(ResourceTestCase):
         self.auth()
 
         resp = self.api_client.get(
-            self.url % u'MINSK'
+            self.station_url % u'MINSK'
         )
 
         self.assertValidJSONResponse(resp)
@@ -420,7 +422,7 @@ class TestByRwGatewayResource(ResourceTestCase):
         self.auth()
 
         resp = self.api_client.get(
-            self.url % u'HOMIEĹ PASAŽYRSKI'
+            self.station_url % u'HOMIEĹ PASAŽYRSKI'
         )
 
         self.assertValidJSONResponse(resp)
@@ -433,7 +435,7 @@ class TestByRwGatewayResource(ResourceTestCase):
         self.auth()
 
         resp = self.api_client.get(
-            self.url % u'VICIEBSK PASAŽYRSKI'
+            self.station_url % u'VICIEBSK PASAŽYRSKI'
         )
 
         self.assertValidJSONResponse(resp)
@@ -446,7 +448,7 @@ class TestByRwGatewayResource(ResourceTestCase):
         self.auth()
 
         resp = self.api_client.get(
-            self.url % u'MAHILIOŬ 1'
+            self.station_url % u'MAHILIOŬ 1'
         )
 
         self.assertValidJSONResponse(resp)
@@ -459,7 +461,7 @@ class TestByRwGatewayResource(ResourceTestCase):
         self.auth()
 
         resp = self.api_client.get(
-            self.url % u'BREST'
+            self.station_url % u'BREST'
         )
 
         self.assertValidJSONResponse(resp)
@@ -467,3 +469,34 @@ class TestByRwGatewayResource(ResourceTestCase):
         stations = self.deserialize(resp)
 
         self.assertEqual(stations[0]['name'], u'BREST')
+
+    def test_train_unauthorized(self):
+        resp = self.api_client.get(
+            self.train_url
+                % (date.today(), u'MINSK', u'HOMIEĹ PASAŽYRSKI', u'MINSK')
+        )
+
+        self.assertHttpUnauthorized(resp)
+
+    def test_train_bad_request(self):
+        self.auth()
+
+        resp = self.api_client.get(
+            self.train_url.split("?")[0]
+        )
+
+        self.assertHttpBadRequest(resp)
+
+    def test_train_minsk(self):
+        self.auth()
+
+        resp = self.api_client.get(
+            self.train_url
+                % (date.today(), u'MINSK', u'HOMIEĹ PASAŽYRSKI', u'MINSK')
+        )
+
+        self.assertValidJSONResponse(resp)
+
+        train = self.deserialize(resp)
+
+        self.assertTrue(u'MINSK' in train[0]['full_name'])
