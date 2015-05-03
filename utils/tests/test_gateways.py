@@ -56,4 +56,6 @@ class GatewaysTest(TestCase):
 
             result = gw.find_train(date, departure_point, destination_point, u"HOMIEĹ")
 
-        self.assertTrue(u"HOMIEĹ" in result[0]['full_name'])
+        self.assertTrue(u'HOMIEĹ' in result[0]['full_name'])
+        self.assertTrue(u':' in result[0]['arrival_time'])
+        self.assertTrue(u':' in result[0]['departure_time'])

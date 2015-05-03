@@ -500,3 +500,5 @@ class TestByRwGatewayResource(ResourceTestCase):
         train = self.deserialize(resp)
 
         self.assertTrue(u'MINSK' in train[0]['full_name'])
+        self.assertTrue(u':' in train[0]['arrival_time'])
+        self.assertTrue(u':' in train[0]['departure_time'])

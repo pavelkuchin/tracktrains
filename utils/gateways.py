@@ -62,7 +62,7 @@ class GatewayByRw():
         )
 
     def __request_trains(self, response_initial, departure_point,
-            destination_point, departure_date, type=REQUEST_TYPE['VACANT']):
+            destination_point, departure_date, select_type=REQUEST_TYPE['VACANT']):
         """
             The request for trains list
             @param response_initial - result of the self.request_initial()
@@ -95,7 +95,7 @@ class GatewayByRw():
             '%s:form1:maxP' % self.NAMESPACE: '4',
             '%s:form1:minDate' % self.NAMESPACE: str_departure_date,
             '%s:form1:onlySchedule' % self.NAMESPACE: 'true',
-            '%s:form1:selectType' % self.NAMESPACE: '2',
+            '%s:form1:selectType' % self.NAMESPACE: select_type,
             '%s:form1:textArrStat' % self.NAMESPACE: destination_point,
             '%s:form1:textDepStat' % self.NAMESPACE: departure_point,
         }
@@ -344,27 +344,39 @@ class GatewayByRw():
             @return the trains list (names and codes)
                 [
                     {
+                        'arrival_time': '11:58',
                         'code': '669Б',
+                        'departure_time': '04:26',
                         'full_name': '669Б HOMIEĹ PASAŽYRSKI - MINSK PASAŽYRSKI'
                     },
                     {
+                        'arrival_time': '11:19',
                         'code': '647Б',
+                        'departure_time': '06:49',
                         'full_name': '647Б HOMIEĹ PASAŽYRSKI - MINSK PASAŽYRSKI'
                     },
                     {
+                        'arrival_time': '11:35',
                         'code': '707Б',
+                        'departure_time': '07:59',
                         'full_name': '707Б HOMIEĹ PASAŽYRSKI - MINSK PASAŽYRSKI'
                     },
                     {
+                        'arrival_time': '22:09',
                         'code': '631Б',
+                        'departure_time': u'14:25',
                         'full_name': '631Б HOMIEĹ PASAŽYRSKI - HRODNA'
                     },
                     {
+                        'arrival_time': '19:32',
                         'code': '615Б',
+                        'departure_time': '15:51',
                         'full_name': '615Б HOMIEĹ PASAŽYRSKI - MINSK PASAŽYRSKI'
                     },
                     {
+                        'arrival_time': '23:10',
                         'code': '621Б',
+                        'departure_time': '18:16',
                         'full_name': '621Б HOMIEĹ PASAŽYRSKI - MINSK PASAŽYRSKI'
                     }
                 ]
@@ -372,6 +384,7 @@ class GatewayByRw():
         """
 
         init = self.__request_initial()
+
         response_trains = self.__request_trains(
             init, departure_point, destination_point, date,
             self.REQUEST_TYPE['ALL'])
@@ -386,7 +399,17 @@ class GatewayByRw():
 
         for r in rows:
             t = r.find('span', style="white-space:nowrap").text
+            tds = r.findAll('td', recursive=False)
+
+            departure_time = tds[4].text
+            arrival_time = tds[5].text[1:]
+
             if query in t:
-                trains.append({u'code': t.split(" ")[0], u'full_name': t})
+                trains.append({
+                    u'code': t.split(" ")[0],
+                    u'full_name': u'%s (%s - %s)' % (t, departure_time, arrival_time),
+                    u'departure_time': departure_time,
+                    u'arrival_time': arrival_time
+                })
 
         return trains
