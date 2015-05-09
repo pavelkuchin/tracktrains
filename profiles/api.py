@@ -28,7 +28,8 @@ class TrackTrainsUserResource(ModelResource):
         authorization = ReadOnlyAuthorization()
         filtering = {'email': ALL}
         allowed_methods = ['get']
-        fields = ['email', 'inviter', 'invites_counter', 'is_active', 'is_staff']
+        fields = ['email', 'inviter', 'invites_counter', 'is_active', \
+                  'is_staff', 'tasks_limit']
 
     def prepend_urls(self):
         return [

@@ -92,6 +92,7 @@ class TestTrackTrainsUserResource(ResourceTestCase):
             u'email': self.user_email,
             u'inviter': self.details_url % (self.superuser.pk),
             u'invites_counter': 3,
+            u'tasks_limit': 4,
             u'is_active': True,
             u'is_staff': False
         })
@@ -111,7 +112,7 @@ class TestTrackTrainsUserResource(ResourceTestCase):
 
         self.assertKeys(self.deserialize(resp),
             [u'email', u'inviter', u'invites_counter', \
-            u'is_active', u'is_staff', u'resource_uri'])
+            u'is_active', u'is_staff', u'resource_uri', u'tasks_limit'])
         self.assertEqual(self.deserialize(resp)['email'], self.user_email)
 
 
@@ -385,7 +386,7 @@ class TestTrackTrainsUserResource(ResourceTestCase):
 
         self.assertKeys(self.deserialize(resp),
             [u'email', u'inviter', u'invites_counter', \
-            u'is_active', u'is_staff', u'resource_uri'])
+            u'is_active', u'is_staff', u'resource_uri', u'tasks_limit'])
         self.assertEqual(self.deserialize(resp)['email'], self.user_email)
 
         resp = self.deserialize(self.api_client.post(
@@ -422,7 +423,7 @@ class TestTrackTrainsUserResource(ResourceTestCase):
 
         self.assertKeys(self.deserialize(resp),
             [u'email', u'inviter', u'invites_counter', \
-            u'is_active', u'is_staff', u'resource_uri'])
+            u'is_active', u'is_staff', u'resource_uri', u'tasks_limit'])
         self.assertEqual(self.deserialize(resp)['email'], self.user_email)
 
     def test_session_unauthorized(self):

@@ -118,14 +118,19 @@ class TrackTrainsUser(AbstractBaseUser, PermissionsMixin):
 
     inviter = models.ForeignKey(
         'self',
-        verbose_name = "The person who invited this user",
+        verbose_name = "The person who invited this user.",
         null=True,
         blank=True
     )
 
     invites_counter = models.PositiveSmallIntegerField(
-        verbose_name="The number of remaining invitations",
+        verbose_name="The number of remaining invitations.",
         default=0
+    )
+
+    tasks_limit = models.PositiveSmallIntegerField(
+        verbose_name="The user's limit of tasks.",
+        default=4
     )
 
     USERNAME_FIELD = USERNAME_FIELD
