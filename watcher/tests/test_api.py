@@ -139,6 +139,29 @@ class TestByRwTaskResource(ResourceTestCase):
 
         self.assertEqual(ByRwTask.objects.count(), old_count + 1)
 
+    def test_post_limit_exceed(self):
+        self.auth()
+
+        old_count = ByRwTask.objects.count()
+
+        self.assertHttpCreated(self.api_client.post(
+            self.list_url,
+            data=self.post_data
+        ))
+        self.assertHttpCreated(self.api_client.post(
+            self.list_url,
+            data=self.post_data
+        ))
+
+        self.assertEqual(ByRwTask.objects.count(), old_count + 2)
+
+        self.assertHttpUnauthorized(self.api_client.post(
+            self.list_url,
+            data=self.post_data
+        ))
+
+        self.assertEqual(ByRwTask.objects.count(), old_count + 2)
+
     def test_put_detail_unauthorized(self):
         self.assertHttpUnauthorized(self.api_client.put(
             self.details_url % (self.task1.pk,),

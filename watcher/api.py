@@ -10,9 +10,9 @@ from tastypie.authentication import SessionAuthentication
 from tastypie.authorization import ReadOnlyAuthorization
 
 from profiles.api import TrackTrainsUserResource
-from utils.authorization import OwnerBasedAuthorization
 from utils.gateways import GatewayByRw
 from .models import ByRwTask
+from .authorization import TaskAuthorization
 
 
 class ByRwTaskResource(ModelResource):
@@ -22,7 +22,7 @@ class ByRwTaskResource(ModelResource):
         queryset = ByRwTask.objects.all()
         resource_name = 'byrwtask'
         authentication = SessionAuthentication()
-        authorization = OwnerBasedAuthorization()
+        authorization = TaskAuthorization()
 
 
 class ByRwGatewayResource(ModelResource):
