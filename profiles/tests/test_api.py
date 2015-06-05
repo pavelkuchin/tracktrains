@@ -26,6 +26,7 @@ class TestTrackTrainsUserResource(ResourceTestCase):
         self.invite_url = u"/v1/user/invite/%s/"
         self.signup_url = u"/v1/user/signup/%s/"
         self.session_url = u"/v1/user/session/"
+        self.change_password_url = u"/v1/user/change_password/"
 
         self.superuser = TrackTrainsUser.objects.create_superuser(
             self.super_user_email,
@@ -46,8 +47,8 @@ class TestTrackTrainsUserResource(ResourceTestCase):
             'password': 'test'
         }
 
-    def auth(self, superuser=False):
-        if superuser:
+    def auth(self, wiuser=False):
+        if wiuser:
             auth_data = {
                 'login': self.userwi_email,
                 'password': self.userwi_pass
@@ -60,7 +61,7 @@ class TestTrackTrainsUserResource(ResourceTestCase):
 
         login_url = u'/v1/user/login/'
 
-        self.api_client.post(
+        return self.api_client.post(
             login_url,
             data=auth_data
         )
@@ -72,13 +73,14 @@ class TestTrackTrainsUserResource(ResourceTestCase):
 
     def test_get_list_json(self):
         self.auth()
+
         resp = self.api_client.get(
             self.list_url,
             format='json'
         )
         self.assertValidJSONResponse(resp)
 
-        self.assertEqual(len(self.deserialize(resp)['objects']), 3)
+        self.assertEqual(len(self.deserialize(resp)['objects']), 1)
 
         ctrl_user = {}
 
@@ -166,7 +168,7 @@ class TestTrackTrainsUserResource(ResourceTestCase):
         )
 
     def test_delete_detail_unauthenticated(self):
-        self.assertHttpMethodNotAllowed(
+        self.assertHttpUnauthorized(
             self.api_client.delete(
                 self.details_url % (self.user.pk),
                 format='json'
@@ -175,12 +177,29 @@ class TestTrackTrainsUserResource(ResourceTestCase):
 
     def test_delete_detail(self):
         self.auth()
-        self.assertHttpMethodNotAllowed(
+
+        old_count = TrackTrainsUser.objects.count()
+        self.assertHttpAccepted(
             self.api_client.delete(
                 self.details_url % (self.user.pk),
                 format='json'
             )
         )
+        new_count = TrackTrainsUser.objects.count()
+        self.assertEqual(old_count - 1, new_count)
+
+    def test_delete_detail_of_other_user(self):
+        self.auth(True)
+
+        old_count = TrackTrainsUser.objects.count()
+        self.assertHttpUnauthorized(
+            self.api_client.delete(
+                self.details_url % (self.user.pk),
+                format='json'
+            )
+        )
+        new_count = TrackTrainsUser.objects.count()
+        self.assertEqual(old_count, new_count)
 
     def test_invite_signup(self):
         email = "unittest@test.ts"
@@ -432,3 +451,42 @@ class TestTrackTrainsUserResource(ResourceTestCase):
             format='json'
         )
         self.assertHttpUnauthorized(resp)
+
+    def test_change_password_unauthorized(self):
+        pass_data = {
+            "password": "test",
+            "new_password": "test_changed"
+        }
+
+        resp = self.api_client.put(
+            self.change_password_url,
+            data=pass_data,
+            format='json'
+        )
+
+        self.assertHttpUnauthorized(resp)
+
+    def test_change_password(self):
+        self.auth()
+
+        pass_data = {
+            "password": "test",
+            "new_password": "test_changed"
+        }
+
+        resp = self.api_client.put(
+            self.change_password_url,
+            data=pass_data,
+            format='json'
+        )
+
+        self.assertHttpOK(resp)
+
+        self.user_pass = "test_changed"
+        auth_resp = self.auth()
+
+        self.assertValidJSONResponse(auth_resp)
+
+        data = self.deserialize(auth_resp)
+
+        self.assertEqual(data['success'], True)

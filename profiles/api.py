@@ -8,15 +8,17 @@ from tastypie import fields
 from tastypie.resources import ModelResource
 from tastypie.constants import ALL
 from tastypie.utils import trailing_slash
-from tastypie.authorization import ReadOnlyAuthorization
 from tastypie.authentication import SessionAuthentication
 from tastypie.exceptions import ImmediateHttpResponse
 from tastypie.http import HttpForbidden, HttpBadRequest
 
 from .models import TrackTrainsUser
+from .authorization import UserAuthorization
 from utils import email
 
+
 log = logging.getLogger(__name__)
+
 
 class TrackTrainsUserResource(ModelResource):
     inviter = fields.ForeignKey('self', 'inviter', null=True, blank=True)
@@ -25,9 +27,9 @@ class TrackTrainsUserResource(ModelResource):
         queryset = TrackTrainsUser.objects.all()
         resource_name = 'user'
         authentication = SessionAuthentication()
-        authorization = ReadOnlyAuthorization()
+        authorization = UserAuthorization()
         filtering = {'email': ALL}
-        allowed_methods = ['get']
+        allowed_methods = ['get', 'delete']
         fields = ['email', 'inviter', 'invites_counter', 'is_active', \
                   'is_staff', 'tasks_limit']
 
@@ -52,8 +54,35 @@ class TrackTrainsUserResource(ModelResource):
             url(r"(?P<resource_name>%s)/session%s$"
                     % (self._meta.resource_name, trailing_slash()),
                 self.wrap_view("api_session"),
-                name="api_session")
+                name="api_session"),
+            url(r"(?P<resource_name>%s)/change_password%s$"
+                    % (self._meta.resource_name, trailing_slash()),
+                self.wrap_view("api_change_password"),
+                name="api_change_password")
         ]
+
+    def api_change_password(self, request, **kwargs):
+        self.method_check(request, allowed=['put'])
+        self.is_authenticated(request)
+
+        body = json.loads(request.body)
+
+        if body and 'password' in body and 'new_password' in body:
+            if request.user.check_password(body['password']):
+                request.user.set_password(body['new_password'])
+                request.user.save()
+            else:
+                msg = "The password is incorrect."
+                log.warning(msg)
+                raise ImmediateHttpResponse(HttpBadRequest(msg))
+        else:
+            msg = "The current password and a new password are required"
+            log.warning(msg)
+            raise ImmediateHttpResponse(HttpBadRequest(msg))
+
+        result = {'success': True, 'message':'Your password has been changed.'}
+
+        return self.create_response(request, result)
 
     def api_login(self, request, **kwargs):
         self.method_check(request, allowed=['post'])
