@@ -1,4 +1,4 @@
-Django==1.8
+Django==1.8.2
 #django-tastypie==0.12.1 commented out until new release with django support
 -e git+https://github.com/django-tastypie/django-tastypie.git#egg=django-tastypie
 lxml==3.4.0
