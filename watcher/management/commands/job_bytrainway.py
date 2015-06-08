@@ -127,6 +127,8 @@ class Command(BaseCommand):
                                     j['types']
                                 )
                                 found_seat = self.__looking4seat(details, i.car, i.seat)
+                                if found_seat:
+                                    break
 
                 if found_train and found_car and found_seat:
                     if not i.is_successful:

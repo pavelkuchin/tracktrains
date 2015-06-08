@@ -91,6 +91,7 @@ class TestTrackTrainsUserResource(ResourceTestCase):
 
         self.assertEqual(ctrl_user, {
             u'resource_uri': self.details_url % (self.user.pk),
+            u'id': self.user.pk,
             u'email': self.user_email,
             u'inviter': self.details_url % (self.superuser.pk),
             u'invites_counter': 3,
@@ -113,7 +114,7 @@ class TestTrackTrainsUserResource(ResourceTestCase):
         self.assertValidJSONResponse(resp)
 
         self.assertKeys(self.deserialize(resp),
-            [u'email', u'inviter', u'invites_counter', \
+            [u'email', u'id', u'inviter', u'invites_counter', \
             u'is_active', u'is_staff', u'resource_uri', u'tasks_limit'])
         self.assertEqual(self.deserialize(resp)['email'], self.user_email)
 
@@ -404,7 +405,7 @@ class TestTrackTrainsUserResource(ResourceTestCase):
         self.assertValidJSONResponse(resp)
 
         self.assertKeys(self.deserialize(resp),
-            [u'email', u'inviter', u'invites_counter', \
+            [u'email', u'id', u'inviter', u'invites_counter', \
             u'is_active', u'is_staff', u'resource_uri', u'tasks_limit'])
         self.assertEqual(self.deserialize(resp)['email'], self.user_email)
 
@@ -441,7 +442,7 @@ class TestTrackTrainsUserResource(ResourceTestCase):
         self.assertValidJSONResponse(resp)
 
         self.assertKeys(self.deserialize(resp),
-            [u'email', u'inviter', u'invites_counter', \
+            [u'email', u'id', u'inviter', u'invites_counter', \
             u'is_active', u'is_staff', u'resource_uri', u'tasks_limit'])
         self.assertEqual(self.deserialize(resp)['email'], self.user_email)
 
