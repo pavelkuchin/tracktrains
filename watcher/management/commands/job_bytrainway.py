@@ -51,9 +51,10 @@ class Command(BaseCommand):
         destination = None
         date = None
 
+        trains = None
+
         with GatewayByRw() as gw:
             for i in tasks:
-                trains = None
                 found_train = False
                 found_car = False
                 found_seat = False
@@ -69,7 +70,8 @@ class Command(BaseCommand):
 
                 if (departure != i.departure_point or
                     destination != i.destination_point or
-                    date != i.departure_date):
+                    date != i.departure_date or
+                    trains is None):
 
                     departure = i.departure_point
                     destination = i.destination_point
