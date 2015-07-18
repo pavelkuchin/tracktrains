@@ -1,5 +1,6 @@
 language: python
 python: "2.7"
+sudo: false
 install: pip install -r ./tracktrains/requirements/build.txt
 before_script:
     - psql -c 'create database tracktrains;' -U postgres
