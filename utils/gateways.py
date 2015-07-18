@@ -67,6 +67,7 @@ class GatewayByRw():
             )
         except requests.exceptions.RequestException as e:
             log.exception(e)
+            raise
 
         return result
 
@@ -114,6 +115,7 @@ class GatewayByRw():
             result = self.session.post(url, data=data, headers=self.HEADERS)
         except requests.exceptions.RequestException as e:
             log.exception(e)
+            raise
 
         return result
 
@@ -145,6 +147,7 @@ class GatewayByRw():
             result = self.session.post(url, data=data, headers=self.HEADERS)
         except requests.exceptions.RequestException as e:
             log.exception(e)
+            raise
 
         return result
 
@@ -176,6 +179,7 @@ class GatewayByRw():
             result = self.session.post(url, data=data, headers=self.HEADERS)
         except requests.exceptions.RequestException as e:
             log.exception(e)
+            raise
 
         return result
 
@@ -321,6 +325,7 @@ class GatewayByRw():
             )
         except requests.exceptions.RequestException as e:
             log.exception(e)
+            raise
 
         raw_result.encoding = 'utf8'
 
