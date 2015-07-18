@@ -20,7 +20,7 @@ def send_invitation_email(from_addr, to_addr, signed_invitation):
 
     log.debug('The hash is: %s', signed_invitation)
     payload = {
-        'link_to_signup': 'http://%s/%s/%s/' %
+        'link_to_signup': 'https://%s/%s/%s/' %
             (settings.HOST, settings.SIGNUP_PAGE, signed_invitation)
     }
     c = Context(payload)
