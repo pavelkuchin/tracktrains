@@ -26,7 +26,7 @@ def send_invitation_email(from_addr, to_addr, signed_invitation):
     c = Context(payload)
 
     msg = EmailMultiAlternatives(subject, text_content.render(c),
-        "inviter@%s" % settings.HOST,
+        "tracker@%s" % settings.HOST,
         [to_addr])
     msg.attach_alternative(html_content.render(c), "text/html")
     msg.send()
