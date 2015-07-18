@@ -3,10 +3,14 @@ import re
 import requests
 import datetime
 import json
+import logging
 
 from bs4 import BeautifulSoup
 
 from django.conf import settings
+
+
+log = logging.getLogger(__name__)
 
 
 class GatewayByRw():
@@ -56,10 +60,16 @@ class GatewayByRw():
         """
             The initial request for the main page
         """
-        return self.session.get(
-            self.URL_BASE + self.URL_SCHEDULE + "?lang=en",
-            headers=self.HEADERS
-        )
+        try:
+            result = self.session.get(
+                self.URL_BASE + self.URL_SCHEDULE + "?lang=en",
+                headers=self.HEADERS
+            )
+        except requests.exceptions.RequestException as e:
+            log.exception(e)
+
+        return result
+
 
     def __request_trains(self, response_initial, departure_point,
             destination_point, departure_date, select_type=REQUEST_TYPE['VACANT']):
@@ -100,7 +110,12 @@ class GatewayByRw():
             '%s:form1:textDepStat' % self.NAMESPACE: departure_point,
         }
 
-        return self.session.post(url, data=data, headers=self.HEADERS)
+        try:
+            result = self.session.post(url, data=data, headers=self.HEADERS)
+        except requests.exceptions.RequestException as e:
+            log.exception(e)
+
+        return result
 
     def __request_details(self, response_trains, details_id):
         """
@@ -126,7 +141,12 @@ class GatewayByRw():
 
         url = self.URL_BASE + action
 
-        return self.session.post(url, data=data, headers=self.HEADERS)
+        try:
+            result = self.session.post(url, data=data, headers=self.HEADERS)
+        except requests.exceptions.RequestException as e:
+            log.exception(e)
+
+        return result
 
     def __request_back(self, response_details):
         """
@@ -152,7 +172,12 @@ class GatewayByRw():
             '%s:form1' % self.NAMESPACE: '%s:form1' % self.NAMESPACE,
         }
 
-        return self.session.post(url, data=data, headers=self.HEADERS)
+        try:
+            result = self.session.post(url, data=data, headers=self.HEADERS)
+        except requests.exceptions.RequestException as e:
+            log.exception(e)
+
+        return result
 
     def get_trains(self, departure_point, destination_point, departure_date):
         """
@@ -287,12 +312,15 @@ class GatewayByRw():
 
         """
 
-        raw_result = self.session.get(
-            "%s%s?term=%s&type=STATION&lang=en&onlySchedule=1"
-                % (self.URL_BASE, self.URL_CITIES, city),
-            headers=self.HEADERS,
-            stream=True
-        )
+        try:
+            raw_result = self.session.get(
+                "%s%s?term=%s&type=STATION&lang=en&onlySchedule=1"
+                    % (self.URL_BASE, self.URL_CITIES, city),
+                headers=self.HEADERS,
+                stream=True
+            )
+        except requests.exceptions.RequestException as e:
+            log.exception(e)
 
         raw_result.encoding = 'utf8'
 
