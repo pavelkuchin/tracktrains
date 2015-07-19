@@ -515,7 +515,7 @@ class TestByRwGatewayResource(ResourceTestCase):
 
         resp = self.api_client.get(
             self.train_url
-                % (date.today(), u'MINSK', u'HOMIEĹ PASAŽYRSKI', u'MINSK')
+                % (date.today().strftime("%m/%d/%Y"), u'MINSK', u'HOMIEĹ PASAŽYRSKI', u'MINSK')
         )
 
         self.assertValidJSONResponse(resp)
