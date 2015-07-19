@@ -72,7 +72,7 @@ class ByRwGatewayResource(ModelResource):
                 "destination_point and query parameters"
             )
 
-        time_struct = time.strptime(date.split('T')[0], "%Y-%m-%d")
+        time_struct = time.strptime(date, "%m/%d/%Y")
         typed_date = datetime.datetime(*time_struct[:6])
 
         with GatewayByRw() as gw:
